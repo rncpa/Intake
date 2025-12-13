@@ -179,7 +179,8 @@
       addOnsSelected: new Set(),
       advancedPlanningSelected: false,
       allAddOnsVisible: false,
-      premiumVisible: false, // NEW: separate toggle for premium section
+      premiumVisible: false, // kept (not used as a collapse anymore, but safe to retain)
+      selectedTier: null, // NEW: selectable business tiers
     };
 
     // --- QUESTION DEFINITIONS ---
@@ -392,6 +393,7 @@
           state.advancedPlanningSelected = false;
           state.allAddOnsVisible = false;
           state.premiumVisible = false;
+          state.selectedTier = null;
           renderHome(container);
           break;
         case 'assessment':
@@ -785,6 +787,12 @@
         state.results.breakdown.push(`Bundle Estimate: $${state.results.tierPrices.Bundle}/mo`);
 
         state.results.reviewRecommended = reviewRecommended;
+
+        // NEW: default the selectable tier if not set (keeps selection stable between renders)
+        if (!state.selectedTier) {
+          state.selectedTier = state.results.needsReview ? 'Bundle' : (state.results.recommendedTier || 'Bundle');
+          if (state.selectedTier === 'Needs Review') state.selectedTier = 'Bundle';
+        }
       }
     }
 
@@ -912,6 +920,12 @@
       ).join('');
     }
 
+    // NEW: tier selection handler
+    function selectTier(tierName) {
+      state.selectedTier = tierName;
+      renderResults(document.getElementById('app-container'));
+    }
+
     function getPricingTiersHtml(isIndividual, results) {
       if (isIndividual) {
         const formatted = formatPriceDisplay(results.estimatedPrice, null, results.needsReview, true);
@@ -948,19 +962,28 @@
       ];
 
       const tierHtml = tiers.map(tier => {
+        const isSelected = state.selectedTier === tier.name;
         const isRecommended = tier.name === 'Bundle' && !results.needsReview;
+
         const price = results.tierPrices[tier.name];
         const max = PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES[tier.name];
         const requiresReviewDisplay = results.needsReview || (price > max);
         const formatted = formatPriceDisplay(price, max, requiresReviewDisplay, false);
 
-        const borderClasses = isRecommended
-          ? 'border-accent-gold border-2 relative ring-4 ring-accent-gold/20'
-          : 'border-gray-200 border relative';
+        const borderClasses = isSelected
+          ? 'border-accent-gold border-2 ring-4 ring-accent-gold/20'
+          : (isRecommended
+            ? 'border-accent-gold border-2 ring-2 ring-accent-gold/10'
+            : 'border-gray-200 border');
 
         return `
-          <div class="bg-white p-6 rounded-xl card-shadow text-left ${borderClasses}">
+          <div
+            onclick="selectTier('${tier.name}')"
+            class="bg-white p-6 rounded-xl card-shadow text-left ${borderClasses} relative cursor-pointer hover:shadow-md transition"
+          >
             ${isRecommended ? '<span class="absolute top-0 right-0 mt-[-10px] mr-[-10px] bg-accent-gold text-white text-xs font-semibold px-3 py-1 rounded-full uppercase shadow-md">Recommended</span>' : ''}
+            ${isSelected ? '<span class="absolute top-0 left-0 mt-[-10px] ml-[-10px] bg-primary-dark text-white text-xs font-semibold px-3 py-1 rounded-full uppercase shadow-md">Selected</span>' : ''}
+
             <h4 class="text-xl font-bold text-primary-dark mb-1">${tier.name}</h4>
             <p class="text-secondary-grey text-sm mb-4 h-10">${tier.description}</p>
 
@@ -968,7 +991,7 @@
             <p class="text-sm text-secondary-grey mb-3">${requiresReviewDisplay ? 'Estimate shown, scope call required' : 'Estimated / mo'}</p>
 
             <p class="text-xs text-secondary-grey leading-relaxed">
-              We’ll confirm exactly what’s included on the scope call. You won’t be billed from this page.
+              Click to select a tier. We’ll confirm exactly what’s included on a short scope call.
             </p>
 
             ${requiresReviewDisplay ? `<p class="text-xs text-red-600 mt-3">${formatted.microcopy}</p>` : ''}
@@ -977,7 +1000,8 @@
       }).join('');
 
       return `
-        <h3 class="text-2xl font-bold text-primary-dark mb-6 text-center">Service Tiers</h3>
+        <h3 class="text-2xl font-bold text-primary-dark mb-2 text-center">Service Tiers</h3>
+        <p class="text-secondary-grey text-center mb-6">Click a tier to select it.</p>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">${tierHtml}</div>
       `;
     }
@@ -1051,9 +1075,57 @@
       renderResults(document.getElementById('app-container'));
     }
 
-    function togglePremiumVisibility() {
-      state.premiumVisible = !state.premiumVisible;
-      renderResults(document.getElementById('app-container'));
+    // NEW: dropdown for all add-ons (available even if not recommended)
+    function handleAddOnDropdownChange(selectEl) {
+      const id = selectEl.value;
+      if (!id) return;
+      toggleAddOn(id);
+      selectEl.value = '';
+    }
+
+    function renderAllAddOnsDropdown() {
+      const selected = Array.from(state.addOnsSelected);
+
+      const selectedPills = selected.length ? `
+        <div class="mt-4 flex flex-wrap gap-2">
+          ${selected.map(id => {
+            const addon = ADD_ONS_DATA.find(a => a.id === id);
+            const name = addon ? addon.name : id;
+            return `
+              <button
+                onclick="toggleAddOn('${id}')"
+                class="text-sm font-semibold px-3 py-2 rounded-full border border-accent-gold bg-background-light/60 text-primary-dark hover:bg-background-light transition"
+                title="Click to remove"
+              >
+                <i class="fa-solid fa-circle-check text-accent-gold mr-2"></i>${name}
+                <i class="fa-solid fa-xmark ml-2 text-secondary-grey"></i>
+              </button>
+            `;
+          }).join('')}
+        </div>
+      ` : '';
+
+      return `
+        <div class="mt-10">
+          <h3 class="text-2xl font-bold text-primary-dark mb-2">All add-ons</h3>
+          <p class="text-secondary-grey mb-4">
+            Want to add something not shown above? Pick any add-on here.
+          </p>
+
+          <div class="bg-white p-5 rounded-xl card-shadow border border-gray-200">
+            <label class="text-sm font-semibold text-primary-dark block mb-2">Add an add-on</label>
+            <select
+              onchange="handleAddOnDropdownChange(this)"
+              class="w-full border border-gray-300 rounded-lg p-3 text-primary-dark bg-white focus:outline-none focus:ring-2 focus:ring-accent-gold/30"
+            >
+              <option value="">Select an add-on…</option>
+              ${ADD_ONS_DATA.map(a => `<option value="${a.id}">${a.name}</option>`).join('')}
+            </select>
+
+            ${selectedPills}
+          </div>
+        </div>
+      `;
     }
 
     // NEW: simplified add-ons UI (less buttons, calmer rows)
@@ -1094,7 +1166,7 @@
 
       return `
         <div class="mt-14">
-          <h3 class="text-2xl font-bold text-primary-dark mb-2">Optional add-ons</h3>
+          <h3 class="text-2xl font-bold text-primary-dark mb-2">Relevant add-ons</h3>
           <p class="text-secondary-grey mb-6">
             These are common upgrades for situations like yours. Select any that apply.
           </p>
@@ -1119,50 +1191,43 @@
       `;
     }
 
-    // NEW: collapsed premium section by default
+    // UPDATED: make Advanced Tax Planning much more prominent (no collapse)
     function renderAdvancedTaxPlanning(results) {
       const isHighComplexity = results.complexityLevel === 'High';
       const isSelected = state.advancedPlanningSelected;
 
       return `
         <div class="mt-10">
-          <div class="divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white shadow-sm">
-            <button onclick="togglePremiumVisibility()" class="w-full text-left p-5 flex items-center justify-between hover:bg-gray-50 transition rounded-xl">
-              <div>
-                <p class="font-bold text-primary-dark">Premium project-based services</p>
-                <p class="text-sm text-secondary-grey">For acquisitions, restructuring, and major planning.</p>
-              </div>
-              <i class="fa-solid ${state.premiumVisible ? 'fa-chevron-up' : 'fa-chevron-down'} text-secondary-grey text-sm"></i>
-            </button>
+          <div class="bg-white p-7 rounded-2xl card-shadow border-2 border-accent-gold">
+            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+              <div class="space-y-2">
+                <p class="text-sm font-semibold uppercase tracking-wide text-secondary-grey">Premium advisory</p>
+                <h3 class="text-3xl font-extrabold text-primary-dark">Advanced Tax Planning</h3>
+                <p class="text-secondary-grey max-w-prose">
+                  For acquisitions, restructuring, real estate strategy, and other high-impact decisions where planning saves real money.
+                </p>
 
-            <div class="${state.premiumVisible ? 'block' : 'hidden'} p-5">
-              <div class="rounded-xl border ${isSelected ? 'border-accent-gold bg-background-light/60 ring-2 ring-accent-gold/10' : 'border-gray-200 bg-white'} p-5 transition">
-                <div class="flex items-start justify-between gap-4">
-                  <div>
-                    <h4 class="text-lg font-bold text-primary-dark">Advanced tax planning</h4>
-                    <p class="text-sm text-secondary-grey mt-1 leading-relaxed">
-                      High-impact planning for major moves outside routine compliance.
-                    </p>
-
-                    <ul class="space-y-2 text-sm text-primary-dark pt-3">
-                      <li class="flex items-start"><i class="fa-solid fa-circle-check text-accent-gold mr-3 mt-1 text-sm"></i>Business acquisition or sale planning</li>
-                      <li class="flex items-start"><i class="fa-solid fa-circle-check text-accent-gold mr-3 mt-1 text-sm"></i>Entity restructuring and tax modeling</li>
-                      <li class="flex items-start"><i class="fa-solid fa-circle-check text-accent-gold mr-3 mt-1 text-sm"></i>Multi-year strategy coordination</li>
-                    </ul>
-
-                    ${isHighComplexity ? `
-                      <p class="text-xs text-secondary-grey italic pt-3">
-                        If complexity is high, this is often the best ROI on advisory spend.
-                      </p>
-                    ` : ''}
-                  </div>
-
-                  <button onclick="toggleAdvancedPlanning()" class="shrink-0 bg-accent-gold text-white font-bold py-2 px-4 rounded-lg hover:bg-opacity-90 transition">
-                    ${isSelected ? 'Remove' : 'Add'}
-                  </button>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 text-sm">
+                  <div class="bg-background-light/60 rounded-lg p-3">Acquisition or sale planning</div>
+                  <div class="bg-background-light/60 rounded-lg p-3">Entity restructuring and modeling</div>
+                  <div class="bg-background-light/60 rounded-lg p-3">Multi-year strategy coordination</div>
                 </div>
 
-                <p class="text-xs text-secondary-grey mt-3">Quoted after a short scope call.</p>
+                ${isHighComplexity ? `
+                  <p class="text-xs text-secondary-grey italic pt-2">
+                    With high complexity, this is often the best ROI on advisory spend.
+                  </p>
+                ` : ''}
+              </div>
+
+              <div class="shrink-0">
+                <button onclick="toggleAdvancedPlanning()"
+                  class="bg-accent-gold text-white font-bold py-3 px-6 rounded-lg hover:bg-opacity-90 transition w-full md:w-auto"
+                >
+                  <i class="fa-solid ${isSelected ? 'fa-circle-check' : 'fa-circle-plus'} mr-2"></i>
+                  ${isSelected ? 'Added to scope' : 'Add to scope'}
+                </button>
+                <p class="text-xs text-secondary-grey mt-2">Quoted after a short scope call.</p>
               </div>
             </div>
           </div>
@@ -1180,22 +1245,32 @@
       let heroFormatted;
       const bundleMax = PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES.Bundle;
 
+      // NEW: use selected tier for business hero price
+      const selectedTier = isIndividual
+        ? null
+        : (state.selectedTier || results.recommendedTier || 'Bundle');
+
       if (isIndividual) {
         heroFormatted = formatPriceDisplay(results.estimatedPrice, null, isReviewRequired, true);
       } else {
-        const bundlePrice = results.tierPrices.Bundle;
-        const isOverMax = bundlePrice > bundleMax;
+        const tierPrice = results.tierPrices[selectedTier] || results.tierPrices.Bundle;
+        const tierMax = PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES[selectedTier] || bundleMax;
+        const isOverMax = tierPrice > tierMax;
 
         heroFormatted = formatPriceDisplay(
-          bundlePrice,
-          bundleMax,
+          tierPrice,
+          tierMax,
           isReviewRequired || isOverMax,
           false
         );
       }
 
       const heroPriceDisplay = heroFormatted.price;
-      const heroTierDisplay = isReviewRequired ? 'Custom Quote Required' : (results.recommendedTier || 'Custom Quote Required');
+
+      const heroTierDisplay = isReviewRequired
+        ? 'Custom Quote Required'
+        : (isIndividual ? (results.recommendedTier || 'Tax Prep Estimate') : selectedTier);
+
       const heroTimeDisplay = isIndividual ? 'ONE-TIME PRICE' : 'MONTHLY SUBSCRIPTION';
 
       const reviewBannerClasses = isReviewRequired
@@ -1208,7 +1283,7 @@
       } else if (isIndividual) {
         recommendationSentence = `Based on your answers, we can confirm your full-scope tax prep price and start onboarding right away.`;
       } else {
-        recommendationSentence = `Based on your answers, the ${results.recommendedTier} tier is the best fit for year-round support.`;
+        recommendationSentence = `You’ve selected the ${selectedTier} tier. We’ll confirm scope and final pricing on a short call.`;
       }
 
       const situationHtml = getSituationHtml(state.answers, isIndividual);
@@ -1227,6 +1302,7 @@
 
       const packageOptionsHtml = getPricingTiersHtml(isIndividual, results);
       const recommendedAddOnsHtml = renderRecommendedAddOns(results, state.answers, state.path);
+      const allAddOnsDropdownHtml = renderAllAddOnsDropdown();
       const advancedPlanningHtml = renderAdvancedTaxPlanning(results);
 
       container.innerHTML = `
@@ -1245,7 +1321,7 @@
           <!-- SECTION 2: HERO -->
           <div class="grid grid-cols-1 gap-6 mb-10">
             <div class="bg-white p-8 rounded-xl card-shadow border-2 ${isReviewRequired ? 'border-gray-400 bg-background-light/70' : 'border-accent-gold'} relative">
-              <h3 class="text-xl font-bold text-secondary-grey mb-4 uppercase tracking-wider">Recommended Tier</h3>
+              <h3 class="text-xl font-bold text-secondary-grey mb-4 uppercase tracking-wider">Selected Tier</h3>
 
               <p class="text-5xl font-extrabold text-primary-dark mb-1 leading-none">${heroTierDisplay}</p>
               <p class="text-4xl font-extrabold text-accent-gold mb-4">${heroPriceDisplay}</p>
@@ -1292,6 +1368,7 @@
           <!-- ADD-ONS + PREMIUM -->
           <section class="mt-16 space-y-8">
             ${recommendedAddOnsHtml}
+            ${allAddOnsDropdownHtml}
             ${advancedPlanningHtml}
           </section>
 
@@ -1332,6 +1409,9 @@
       if (state.results.needsReview) {
         summary += `Recommendation: Custom Quote Required\n`;
       } else {
+        if (state.path !== 'Individual' && state.selectedTier) {
+          summary += `Selected Tier: ${state.selectedTier}\n`;
+        }
         summary += `Recommended Tier: ${state.results.recommendedTier}\n`;
         summary += `Price Estimate: $${state.results.estimatedPrice.toLocaleString()}${state.path === 'Individual' ? ' (One-Time)' : '/mo (Subscription)'}\n`;
       }
