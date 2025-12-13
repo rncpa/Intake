@@ -81,7 +81,7 @@
     <!-- Sticky Header -->
     <header id="header" class="sticky top-0 z-10 bg-white card-shadow">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <h1 class="text-xl font-extrabold text-primary-dark tracking-tight">Rom Neidhardt, CPA</h1>
+            <h1 class="text-xl font-extrabold text-primary-dark tracking-tight">Service Selection Tool</h1>
             <button onclick="goToPage('home')" class="text-secondary-grey hover:text-accent-gold text-sm font-semibold transition-colors">
                 <i class="fas fa-home mr-1"></i> Home
             </button>
@@ -297,7 +297,7 @@
             state.currentPage = page;
             const container = document.getElementById('app-container');
             container.innerHTML = '';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+
 
             switch (page) {
                 case 'home':
@@ -320,10 +320,12 @@
                     calculateResults();
                     renderResults(container);
                     break;
+                
                 default:
                     // Fallback to home
                     goToPage('home');
             }
+                scrollAppIntoView();
         }
 
         // --- RENDER FUNCTIONS ---
@@ -748,6 +750,19 @@
         }
         
         // --- HELPER RENDER FUNCTIONS FOR RESULTS ---
+
+        function scrollAppIntoView() {
+  const app = document.getElementById('app-container');
+  if (!app) return;
+
+  // Height of sticky site header (adjust if needed)
+  const headerOffset = 90;
+
+  const y = app.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+
+  window.scrollTo({ top: y, behavior: 'smooth' });
+}
+
 
         /**
          * 1. New helper function for conditional price formatting, ensuring "Starts at" display.
