@@ -1,1421 +1,1395 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Lighthouse Guide: Tax Clarity Assessment</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter Font (Google Fonts) -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <!-- Font Awesome Icons CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <style>
-        /* Custom styles to adhere strictly to the palette and tone */
-        :root {
-            --color-primary-dark: #333333;
-            --color-accent-gold: #b89a64;
-            --color-background-light: #e1dfd9;
-            --color-secondary-grey: #808e91;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Lighthouse Guide: Tax Clarity Assessment</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Inter Font (Google Fonts) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Font Awesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <style>
+    :root {
+      --color-primary-dark: #333333;
+      --color-accent-gold: #b89a64;
+      --color-background-light: #e1dfd9;
+      --color-secondary-grey: #808e91;
+    }
 
-        /* Set base font and background */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--color-background-light);
-            color: var(--color-primary-dark);
-        }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--color-background-light);
+      color: var(--color-primary-dark);
+    }
 
-        /* Custom shadow for "app-like" cards */
-        .card-shadow {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
-        }
+    .card-shadow {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+    }
 
-        /* Custom color definitions for Tailwind */
-        .bg-accent-gold { background-color: var(--color-accent-gold); }
-        .text-accent-gold { color: var(--color-accent-gold); }
-        .border-accent-gold { border-color: var(--color-accent-gold); }
-        .bg-background-light { background-color: var(--color-background-light); }
-        .text-primary-dark { color: var(--color-primary-dark); }
-        .text-secondary-grey { color: var(--color-secondary-grey); }
+    .bg-accent-gold { background-color: var(--color-accent-gold); }
+    .text-accent-gold { color: var(--color-accent-gold); }
+    .border-accent-gold { border-color: var(--color-accent-gold); }
+    .bg-background-light { background-color: var(--color-background-light); }
+    .text-primary-dark { color: var(--color-primary-dark); }
+    .text-secondary-grey { color: var(--color-secondary-grey); }
 
-        /* Custom progress bar styles */
-        .progress-bar-container {
-            height: 8px;
-            background-color: var(--color-secondary-grey);
-            border-radius: 9999px;
-            overflow: hidden;
-        }
-        .progress-bar {
-            height: 100%;
-            background-color: var(--color-accent-gold);
-            transition: width 0.3s ease-in-out;
-        }
+    .progress-bar-container {
+      height: 8px;
+      background-color: var(--color-secondary-grey);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background-color: var(--color-accent-gold);
+      transition: width 0.3s ease-in-out;
+    }
 
-        /* Style for the active multi-select item */
-        .multi-select-active {
-            border-color: var(--color-accent-gold);
-            background-color: rgba(184, 154, 100, 0.1);
+    .multi-select-active {
+      border-color: var(--color-accent-gold);
+      background-color: rgba(184, 154, 100, 0.1);
+    }
+  </style>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'primary-dark': '#333333',
+            'accent-gold': '#b89a64',
+            'background-light': '#e1dfd9',
+            'secondary-grey': '#808e91',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
         }
-    </style>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'primary-dark': '#333333',
-                        'accent-gold': '#b89a64',
-                        'background-light': '#e1dfd9',
-                        'secondary-grey': '#808e91',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
+      }
+    }
+  </script>
 </head>
 <body>
 
-    <!-- Sticky Header -->
-    <header id="header" class="sticky top-0 z-10 bg-white card-shadow">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <h1 class="text-xl font-extrabold text-primary-dark tracking-tight">Service Selection Tool</h1>
-            <button onclick="goToPage('home')" class="text-secondary-grey hover:text-accent-gold text-sm font-semibold transition-colors">
-                <i class="fas fa-home mr-1"></i> Home
-            </button>
+  <!-- Sticky Header -->
+  <header id="header" class="sticky top-0 z-10 bg-white card-shadow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+      <h1 class="text-xl font-extrabold text-primary-dark tracking-tight">Service Selection Tool</h1>
+      <button onclick="goToPage('home')" class="text-secondary-grey hover:text-accent-gold text-sm font-semibold transition-colors">
+        <i class="fas fa-home mr-1"></i> Home
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main id="app-container" class="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 min-h-screen"></main>
+
+  <script>
+    // --- PRICING RULES CONFIG (Editable Section) ---
+    const PRICING_RULES_CONFIG = {
+      // 5A) Individual Pricing
+      INDIVIDUAL_BASE_PRICE: 700,
+      INDIVIDUAL_ADDERS: {
+        SCHEDULE_D_HEAVY: 400,
+        SCHEDULE_C: 350,
+        CRYPTO: 400,
+        AMT_ISO_ESPP: 400,
+      },
+      INDIVIDUAL_RENTALS: {
+        '0': 0,
+        '1-2': 400,
+        '3-5': 800,
+        '6+': 'NEEDS_REVIEW',
+      },
+      INDIVIDUAL_K1S: {
+        '0': 0,
+        '1': 250,
+        '2': 500,
+        '3+': 'NEEDS_REVIEW',
+      },
+      INDIVIDUAL_STATES: {
+        '1': 0,
+        '2': 200,
+        '3': 400,
+        '4+': 'NEEDS_REVIEW',
+      },
+      INDIVIDUAL_UNFILED_RETURNS: {
+        '0': 0,
+        '1': 500,
+        '2': 1000,
+        '3+': 'NEEDS_REVIEW',
+      },
+      INDIVIDUAL_TRIGGERS: {
+        FOREIGN_REPORTING: 'NEEDS_REVIEW',
+      },
+
+      // 5B) Business/RE Monthly Tier Pricing
+      BUSINESS_MIN_PRICES: {
+        Compliance: 650,
+        Strategy: 1100,
+        Bundle: 1500,
+      },
+      BUSINESS_MAX_PRICES: {
+        Compliance: 1250,
+        Strategy: 2500,
+        Bundle: 3500,
+      },
+      BUSINESS_COMPLEXITY_POINTS: {
+        entities: { '0': 0, '1': 5, '2': 15, '3+': 20 },
+        rentals_re: { '0': 0, '1-2': 5, '3-5': 15, '6+': 20 },
+        states_re: { '1': 0, '2': 4, '3': 8, '4+': 10 },
+        payroll: { 'none': 0, '1-5 employees': 5, '6+': 10 },
+        bookkeeping: { 'up to date': 0, '1-3 months behind': 10, '4-12': 15, '12+': 20 },
+        cleanup: { 'none': 0, '1 year': 5, '2+ years': 10, 'missing business returns': 20 },
+        notices: { 'none': 0, 'small': 2, 'serious': 5 },
+        transactions: { 'none': 0, 'IRA move': 2, 'acquisition/sale/major expansion': 5 },
+      },
+      BUSINESS_INCREMENTAL_ADDERS: {
+        entity_beyond_1: 150,
+        state_beyond_2: 100,
+        rental_beyond_3: 75,
+      },
+      BUSINESS_HARD_TRIGGERS: {
+        entities_min: 3,
+        rentals_min: 6,
+        states_min: 4,
+        transactions_major_and_high_complexity: 70,
+      },
+    };
+    // --- END PRICING RULES CONFIG ---
+
+    // --- GLOBAL STATE ---
+    let state = {
+      currentPage: 'home',
+      path: null, // 'Individual', 'Business', 'RealEstate', 'Business+RealEstate'
+      currentQuestionIndex: 0,
+      answers: {},
+      results: {
+        complexityScore: 0,
+        complexityLevel: 'Low',
+        estimatedPrice: null,
+        breakdown: [],
+        needsReview: false,
+        reviewRecommended: false,
+        recommendedTier: null,
+        tierPrices: { Compliance: 0, Strategy: 0, Bundle: 0 },
+      },
+      sessionId: `LHG-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+      addOnsSelected: new Set(),
+      advancedPlanningSelected: false,
+      allAddOnsVisible: false,
+      premiumVisible: false, // NEW: separate toggle for premium section
+    };
+
+    // --- QUESTION DEFINITIONS ---
+    const QUESTIONS = {
+      path_selection: [
+        {
+          id: 'path',
+          label: "Which best describes your filing needs?",
+          subtext: "This determines the scope of our assessment.",
+          type: 'single-select-card',
+          options: [
+            { value: 'Individual', label: 'Individual Only', description: 'W-2, Investments, etc.' },
+            { value: 'Business', label: 'Business Owner', description: 'S-Corp, C-Corp, LLC/Partnership' },
+            { value: 'RealEstate', label: 'Real Estate Owner', description: 'Rental properties (Schedule E)' },
+            { value: 'Business+RealEstate', label: 'Business + Real Estate', description: 'Entities and rentals combined' },
+          ]
+        }
+      ],
+      Individual: [
+        {
+          id: 'schedule_d_heavy',
+          label: "Do you have significant investment activity?",
+          subtext: "Heavy stock trading, complex basis, or high-volume 8949 reporting.",
+          type: 'single-select-card',
+          options: [
+            { value: 'Yes', label: 'Yes', icon: 'fa-chart-line' },
+            { value: 'No', label: 'No', icon: 'fa-calculator' },
+          ]
+        },
+        {
+          id: 'rentals',
+          label: "How many residential rental properties do you report?",
+          type: 'single-select-card',
+          options: [
+            { value: '0', label: 'None', icon: 'fa-home' },
+            { value: '1-2', label: '1–2 Rentals', icon: 'fa-house-chimney' },
+            { value: '3-5', label: '3–5 Rentals', icon: 'fa-city' },
+            { value: '6+', label: '6+ Rentals', icon: 'fa-building' },
+          ]
+        },
+        {
+          id: 'schedule_c',
+          label: "Do you have a small business (Schedule C)?",
+          subtext: "Self-employment or contract income reported on your personal return.",
+          type: 'single-select-card',
+          options: [
+            { value: 'Yes', label: 'Yes', icon: 'fa-store' },
+            { value: 'No', label: 'No', icon: 'fa-user' },
+          ]
+        },
+        {
+          id: 'k1s',
+          label: "How many K-1s (from partnerships or trusts) will you receive?",
+          type: 'single-select-card',
+          options: [
+            { value: '0', label: 'None', icon: 'fa-file' },
+            { value: '1', label: '1 K-1', icon: 'fa-file-invoice' },
+            { value: '2', label: '2 K-1s', icon: 'fa-files' },
+            { value: '3+', label: '3+ K-1s', icon: 'fa-layer-group' },
+          ]
+        },
+        {
+          id: 'states',
+          label: "In how many states do you have filing requirements?",
+          subtext: "This counts your home state plus any additional states.",
+          type: 'single-select-card',
+          options: [
+            { value: '1', label: '1 State', icon: 'fa-map-pin' },
+            { value: '2', label: '2 States', icon: 'fa-map' },
+            { value: '3', label: '3 States', icon: 'fa-globe' },
+            { value: '4+', label: '4+ States', icon: 'fa-earth-americas' },
+          ]
+        },
+        {
+          id: 'other_complexity',
+          label: "Do any of these apply to your situation?",
+          subtext: "Select all that apply.",
+          type: 'multi-select-list',
+          options: [
+            { value: 'crypto', label: 'Significant crypto or NFT activity' },
+            { value: 'amt_iso_espp', label: 'AMT, ISO/NSO stock options, or ESPP transactions' },
+            { value: 'foreign_reporting', label: 'Foreign reporting (FBAR/8938)' },
+            { value: 'None', label: 'None of the above' },
+          ]
+        },
+        {
+          id: 'unfiled_returns',
+          label: "How many prior year returns need to be filed?",
+          subtext: "We assist with a maximum of 3 prior years.",
+          type: 'single-select-card',
+          options: [
+            { value: '0', label: 'None', icon: 'fa-calendar-check' },
+            { value: '1', label: '1 Year', icon: 'fa-clock' },
+            { value: '2', label: '2 Years', icon: 'fa-clocks' },
+            { value: '3+', label: '3+ Years', icon: 'fa-hourglass-start' },
+          ]
+        },
+      ],
+      BusinessRE: [
+        {
+          id: 'entities',
+          label: "How many business entities (S-Corp, LLC, Partnership) do you own?",
+          type: 'single-select-card',
+          options: [
+            { value: '0', label: 'None', icon: 'fa-building' },
+            { value: '1', label: 'One Entity', icon: 'fa-building-o' },
+            { value: '2', label: 'Two Entities', icon: 'fa-industry' },
+            { value: '3+', label: 'Three or More', icon: 'fa-city' },
+          ]
+        },
+        {
+          id: 'rentals_re',
+          label: "How many rental properties are you reporting?",
+          type: 'single-select-card',
+          options: [
+            { value: '0', label: 'None', icon: 'fa-home' },
+            { value: '1-2', label: '1–2 Rentals', icon: 'fa-house-chimney' },
+            { value: '3-5', label: '3–5 Rentals', icon: 'fa-city' },
+            { value: '6+', label: '6+ Rentals', icon: 'fa-building' },
+          ]
+        },
+        {
+          id: 'states_re',
+          label: "In how many states are your business/RE holdings registered?",
+          type: 'single-select-card',
+          options: [
+            { value: '1', label: '1 State', icon: 'fa-map-pin' },
+            { value: '2', label: '2 States', icon: 'fa-map' },
+            { value: '3', label: '3 States', icon: 'fa-globe' },
+            { value: '4+', label: '4+ States', icon: 'fa-earth-americas' },
+          ]
+        },
+        {
+          id: 'payroll',
+          label: "Do you run payroll?",
+          type: 'single-select-card',
+          options: [
+            { value: 'none', label: 'No Payroll', icon: 'fa-user' },
+            { value: '1-5 employees', label: '1–5 Employees', icon: 'fa-users-line' },
+            { value: '6+', label: '6+ Employees', icon: 'fa-people-group' },
+          ]
+        },
+        {
+          id: 'bookkeeping',
+          label: "What is the current status of your bookkeeping?",
+          type: 'single-select-card',
+          options: [
+            { value: 'up to date', label: 'Up to Date', icon: 'fa-check-circle' },
+            { value: '1-3 months behind', label: '1–3 Months Behind', icon: 'fa-calendar-minus' },
+            { value: '4-12', label: '4–12 Months Behind', icon: 'fa-calendar-xmark' },
+            { value: '12+', label: 'Over 12 Months Behind', icon: 'fa-calendar-day' },
+          ]
+        },
+        {
+          id: 'cleanup',
+          label: "Do you require prior year cleanup?",
+          type: 'single-select-card',
+          options: [
+            { value: 'none', label: 'None', icon: 'fa-broom' },
+            { value: '1 year', label: '1 Year Cleanup', icon: 'fa-hourglass-start' },
+            { value: '2+ years', label: '2+ Years Cleanup', icon: 'fa-hourglass-half' },
+            { value: 'missing business returns', label: 'Missing Business Returns', icon: 'fa-file-circle-xmark' },
+          ]
+        },
+        {
+          id: 'notices',
+          label: "Are you dealing with any IRS or State notices?",
+          type: 'single-select-card',
+          options: [
+            { value: 'none', label: 'None', icon: 'fa-envelope-open-text' },
+            { value: 'small', label: 'Small Notice (minor error)', icon: 'fa-envelope' },
+            { value: 'serious', label: 'Serious Notice (audit, collections)', icon: 'fa-gavel' },
+          ]
+        },
+        {
+          id: 'transactions',
+          label: "Do you anticipate major transactions in the next 12–24 months?",
+          type: 'single-select-card',
+          options: [
+            { value: 'none', label: 'None', icon: 'fa-shield-check' },
+            { value: 'IRA move', label: 'IRA or 401k Move', icon: 'fa-arrows-left-right' },
+            { value: 'acquisition/sale/major expansion', label: 'Acquisition, Sale, or Major Expansion', icon: 'fa-landmark' },
+          ]
+        },
+      ]
+    };
+
+    // --- FLOW CONTROL ---
+    function goToPage(page) {
+      state.currentPage = page;
+      const container = document.getElementById('app-container');
+      container.innerHTML = '';
+
+      switch (page) {
+        case 'home':
+          state.path = null;
+          state.currentQuestionIndex = 0;
+          state.answers = {};
+          state.results = {
+            complexityScore: 0,
+            complexityLevel: 'Low',
+            estimatedPrice: null,
+            breakdown: [],
+            needsReview: false,
+            reviewRecommended: false,
+            recommendedTier: null,
+            tierPrices: { Compliance: 0, Strategy: 0, Bundle: 0 },
+          };
+          state.addOnsSelected = new Set();
+          state.advancedPlanningSelected = false;
+          state.allAddOnsVisible = false;
+          state.premiumVisible = false;
+          renderHome(container);
+          break;
+        case 'assessment':
+          renderAssessment(container);
+          break;
+        case 'question':
+          renderQuestion(container);
+          break;
+        case 'results':
+          calculateResults();
+          renderResults(container);
+          break;
+        default:
+          goToPage('home');
+      }
+
+      scrollAppIntoView();
+    }
+
+    // --- RENDER FUNCTIONS ---
+    function renderHome(container) {
+      container.innerHTML = `
+        <div class="max-w-xl mx-auto text-center py-20 px-4 sm:px-0">
+          <div class="mb-8">
+            <i class="fa-solid fa-lightbulb text-6xl text-accent-gold"></i>
+          </div>
+          <h2 class="text-5xl font-extrabold text-primary-dark mb-4 leading-tight">
+            Find the Right Level of CPA Support
+          </h2>
+          <p class="text-xl text-secondary-grey mb-10">
+            Answer a few concise questions and get a clear recommendation and price estimate.
+          </p>
+          <button onclick="goToPage('assessment')" class="bg-accent-gold text-white font-bold py-3 px-8 rounded-lg text-lg hover:bg-opacity-90 transition-all card-shadow">
+            Start Assessment
+            <i class="fa-solid fa-arrow-right ml-2"></i>
+          </button>
+          <p class="text-sm text-secondary-grey mt-4">
+            2–4 minutes. No obligation.
+          </p>
         </div>
-    </header>
+      `;
+    }
 
-    <!-- Main Content Area -->
-    <main id="app-container" class="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 min-h-screen">
-        <!-- Content will be rendered here -->
-    </main>
+    function renderAssessment(container) {
+      if (!state.path) {
+        const questionData = QUESTIONS.path_selection[0];
+        renderQuestionContent(container, questionData, 0, 1, 'path_selection');
+      } else {
+        renderQuestion(container);
+      }
+    }
 
-    <script>
-        // --- PRICING RULES CONFIG (Editable Section) ---
-        const PRICING_RULES_CONFIG = {
-            // 5A) Individual Pricing
-            INDIVIDUAL_BASE_PRICE: 700,
-            INDIVIDUAL_ADDERS: {
-                SCHEDULE_D_HEAVY: 400,
-                SCHEDULE_C: 350,
-                CRYPTO: 400,
-                AMT_ISO_ESPP: 400,
-            },
-            INDIVIDUAL_RENTALS: {
-                '0': 0,
-                '1-2': 400,
-                '3-5': 800,
-                '6+': 'NEEDS_REVIEW',
-            },
-            INDIVIDUAL_K1S: {
-                '0': 0,
-                '1': 250,
-                '2': 500, // 2 * 250
-                '3+': 'NEEDS_REVIEW',
-            },
-            // Price is for each ADDITIONAL state after the first (base)
-            INDIVIDUAL_STATES: {
-                '1': 0,
-                '2': 200,
-                '3': 400,
-                '4+': 'NEEDS_REVIEW',
-            },
-            INDIVIDUAL_UNFILED_RETURNS: {
-                '0': 0,
-                '1': 500,
-                '2': 1000,
-                '3+': 'NEEDS_REVIEW',
-            },
-            INDIVIDUAL_TRIGGERS: {
-                FOREIGN_REPORTING: 'NEEDS_REVIEW',
-            },
+    function renderQuestion(container) {
+      const questionSet = state.path === 'Individual' ? QUESTIONS.Individual : QUESTIONS.BusinessRE;
+      const qIndex = state.currentQuestionIndex;
 
-            // 5B) Business/RE Monthly Tier Pricing
-            BUSINESS_MIN_PRICES: {
-                Compliance: 650,
-                Strategy: 1100,
-                Bundle: 1500,
-            },
-            BUSINESS_MAX_PRICES: {
-                Compliance: 1250,
-                Strategy: 2500,
-                Bundle: 3500,
-            },
-            // Normalized complexity score mapping (Target Max: 100)
-            BUSINESS_COMPLEXITY_POINTS: {
-                entities: { '0': 0, '1': 5, '2': 15, '3+': 20 },
-                rentals_re: { '0': 0, '1-2': 5, '3-5': 15, '6+': 20 },
-                states_re: { '1': 0, '2': 4, '3': 8, '4+': 10 },
-                payroll: { 'none': 0, '1-5 employees': 5, '6+': 10 },
-                bookkeeping: { 'up to date': 0, '1-3 months behind': 10, '4-12': 15, '12+': 20 },
-                cleanup: { 'none': 0, '1 year': 5, '2+ years': 10, 'missing business returns': 20 },
-                notices: { 'none': 0, 'small': 2, 'serious': 5 },
-                transactions: { 'none': 0, 'IRA move': 2, 'acquisition/sale/major expansion': 5 },
-            },
-            BUSINESS_INCREMENTAL_ADDERS: {
-                entity_beyond_1: 150,
-                state_beyond_2: 100,
-                rental_beyond_3: 75,
-            },
-            BUSINESS_HARD_TRIGGERS: {
-                entities_min: 3,
-                rentals_min: 6,
-                states_min: 4,
-                transactions_major_and_high_complexity: 70,
-            },
-        };
-        // --- END PRICING RULES CONFIG ---
+      if (qIndex >= questionSet.length) {
+        goToPage('results');
+        return;
+      }
 
-        // --- GLOBAL STATE ---
-        let state = {
-            currentPage: 'home',
-            path: null, // 'Individual', 'Business', 'RealEstate', 'Business+RealEstate'
-            currentQuestionIndex: 0,
-            answers: {},
-            results: {
-                complexityScore: 0,
-                complexityLevel: 'Low',
-                estimatedPrice: null,
-                breakdown: [],
-                needsReview: false, // Hard Price Suppression
-                reviewRecommended: false, // Soft Review Banner
-                recommendedTier: null,
-                tierPrices: { Compliance: 0, Strategy: 0, Bundle: 0 }, // New dynamic prices
-            },
-            sessionId: `LHG-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-            addOnsSelected: new Set(),
-            advancedPlanningSelected: false,
-            allAddOnsVisible: false,
-        };
+      const questionData = questionSet[qIndex];
+      const totalQuestions = questionSet.length;
+      renderQuestionContent(container, questionData, qIndex + 1, totalQuestions, state.path);
+    }
 
-        // --- QUESTION DEFINITIONS ---
-        const QUESTIONS = {
-            path_selection: [
-                { id: 'path', label: "Which best describes your filing needs?", subtext: "This determines the scope of our assessment.", type: 'single-select-card', options: [
-                    { value: 'Individual', label: 'Individual Only', description: 'W-2, Investments, etc.' },
-                    { value: 'Business', label: 'Business Owner', description: 'S-Corp, C-Corp, LLC/Partnership' },
-                    { value: 'RealEstate', label: 'Real Estate Owner', description: 'Rental properties (Schedule E)' },
-                    { value: 'Business+RealEstate', label: 'Business + Real Estate', description: 'Entities and rentals combined' },
-                ]}
-            ],
-            Individual: [
-                { id: 'schedule_d_heavy', label: "Do you have significant investment activity?", subtext: "Heavy stock trading, complex basis, or high-volume 8949 reporting.", type: 'single-select-card', options: [
-                    { value: 'Yes', label: 'Yes', icon: 'fa-chart-line' },
-                    { value: 'No', label: 'No', icon: 'fa-calculator' },
-                ]},
-                { id: 'rentals', label: "How many residential rental properties do you report?", type: 'single-select-card', options: [
-                    { value: '0', label: 'None', icon: 'fa-home' },
-                    { value: '1-2', label: '1–2 Rentals', icon: 'fa-house-chimney' },
-                    { value: '3-5', label: '3–5 Rentals', icon: 'fa-city' },
-                    { value: '6+', label: '6+ Rentals', icon: 'fa-building' },
-                ]},
-                { id: 'schedule_c', label: "Do you have a small business (Schedule C)?", subtext: "Self-employment or contract income reported on your personal return.", type: 'single-select-card', options: [
-                    { value: 'Yes', label: 'Yes', icon: 'fa-store' },
-                    { value: 'No', label: 'No', icon: 'fa-user' },
-                ]},
-                { id: 'k1s', label: "How many K-1s (from partnerships or trusts) will you receive?", type: 'single-select-card', options: [
-                    { value: '0', label: 'None', icon: 'fa-file' },
-                    { value: '1', label: '1 K-1', icon: 'fa-file-invoice' },
-                    { value: '2', label: '2 K-1s', icon: 'fa-files' },
-                    { value: '3+', label: '3+ K-1s', icon: 'fa-layer-group' },
-                ]},
-                { id: 'states', label: "In how many states do you have filing requirements?", subtext: "This counts your home state plus any additional states.", type: 'single-select-card', options: [
-                    { value: '1', label: '1 State', icon: 'fa-map-pin' },
-                    { value: '2', label: '2 States', icon: 'fa-map' },
-                    { value: '3', label: '3 States', icon: 'fa-globe' },
-                    { value: '4+', label: '4+ States', icon: 'fa-earth-americas' },
-                ]},
-                { id: 'other_complexity', label: "Do any of these apply to your situation?", subtext: "Select all that apply.", type: 'multi-select-list', options: [
-                    { value: 'crypto', label: 'Significant crypto or NFT activity' },
-                    { value: 'amt_iso_espp', label: 'AMT, ISO/NSO stock options, or ESPP transactions' },
-                    { value: 'foreign_reporting', label: 'Foreign reporting (FBAR/8938)' },
-                    { value: 'None', label: 'None of the above' },
-                ]},
-                { id: 'unfiled_returns', label: "How many prior year returns need to be filed?", subtext: "We assist with a maximum of 3 prior years.", type: 'single-select-card', options: [
-                    { value: '0', label: 'None', icon: 'fa-calendar-check' },
-                    { value: '1', label: '1 Year', icon: 'fa-clock' },
-                    { value: '2', label: '2 Years', icon: 'fa-clocks' },
-                    { value: '3+', label: '3+ Years', icon: 'fa-hourglass-start' },
-                ]},
-            ],
-            // Business/RE path uses the same questions for score calculation, weighted inside calculateResults
-            BusinessRE: [
-                { id: 'entities', label: "How many business entities (S-Corp, LLC, Partnership) do you own?", type: 'single-select-card', options: [
-                    { value: '0', label: 'None', icon: 'fa-building' },
-                    { value: '1', label: 'One Entity', icon: 'fa-building-o' },
-                    { value: '2', label: 'Two Entities', icon: 'fa-industry' },
-                    { value: '3+', label: 'Three or More', icon: 'fa-city' },
-                ]},
-                { id: 'rentals_re', label: "How many rental properties are you reporting?", type: 'single-select-card', options: [
-                    { value: '0', label: 'None', icon: 'fa-home' },
-                    { value: '1-2', label: '1–2 Rentals', icon: 'fa-house-chimney' },
-                    { value: '3-5', label: '3–5 Rentals', icon: 'fa-city' },
-                    { value: '6+', label: '6+ Rentals', icon: 'fa-building' },
-                ]},
-                { id: 'states_re', label: "In how many states are your business/RE holdings registered?", type: 'single-select-card', options: [
-                    { value: '1', label: '1 State', icon: 'fa-map-pin' },
-                    { value: '2', label: '2 States', icon: 'fa-map' },
-                    { value: '3', label: '3 States', icon: 'fa-globe' },
-                    { value: '4+', label: '4+ States', icon: 'fa-earth-americas' },
-                ]},
-                { id: 'payroll', label: "Do you run payroll?", type: 'single-select-card', options: [
-                    { value: 'none', label: 'No Payroll', icon: 'fa-user' },
-                    { value: '1-5 employees', label: '1–5 Employees', icon: 'fa-users-line' },
-                    { value: '6+', label: '6+ Employees', icon: 'fa-people-group' },
-                ]},
-                { id: 'bookkeeping', label: "What is the current status of your bookkeeping?", type: 'single-select-card', options: [
-                    { value: 'up to date', label: 'Up to Date', icon: 'fa-check-circle' },
-                    { value: '1-3 months behind', label: '1–3 Months Behind', icon: 'fa-calendar-minus' },
-                    { value: '4-12', label: '4–12 Months Behind', icon: 'fa-calendar-xmark' },
-                    { value: '12+', label: 'Over 12 Months Behind', icon: 'fa-calendar-day' },
-                ]},
-                { id: 'cleanup', label: "Do you require prior year cleanup?", type: 'single-select-card', options: [
-                    { value: 'none', label: 'None', icon: 'fa-broom' },
-                    { value: '1 year', label: '1 Year Cleanup', icon: 'fa-hourglass-start' },
-                    { value: '2+ years', label: '2+ Years Cleanup', icon: 'fa-hourglass-half' },
-                    { value: 'missing business returns', label: 'Missing Business Returns', icon: 'fa-file-circle-xmark' },
-                ]},
-                { id: 'notices', label: "Are you dealing with any IRS or State notices?", type: 'single-select-card', options: [
-                    { value: 'none', label: 'None', icon: 'fa-envelope-open-text' },
-                    { value: 'small', label: 'Small Notice (minor error)', icon: 'fa-envelope' },
-                    { value: 'serious', label: 'Serious Notice (audit, collections)', icon: 'fa-gavel' },
-                ]},
-                { id: 'transactions', label: "Do you anticipate major transactions in the next 12–24 months?", type: 'single-select-card', options: [
-                    { value: 'none', label: 'None', icon: 'fa-shield-check' },
-                    { value: 'IRA move', label: 'IRA or 401k Move', icon: 'fa-arrows-left-right' },
-                    { value: 'acquisition/sale/major expansion', label: 'Acquisition, Sale, or Major Expansion', icon: 'fa-landmark' },
-                ]},
-            ]
-        };
+    function renderQuestionContent(container, questionData, currentStep, totalSteps, questionSetKey) {
+      const isPathSelection = questionSetKey === 'path_selection';
+      const progress = (currentStep / totalSteps) * 100;
+      const isMultiSelect = questionData.type === 'multi-select-list';
+      const navButtons = !isPathSelection ? `
+        <div class="flex justify-between mt-8">
+          <button onclick="navigateQuestion(-1)" class="text-secondary-grey hover:text-primary-dark py-2 px-4 rounded-lg font-semibold transition-colors">
+            <i class="fa-solid fa-arrow-left mr-2"></i> Previous
+          </button>
+          <button onclick="navigateQuestion(1)" id="next-button" class="bg-accent-gold text-white font-bold py-3 px-8 rounded-lg hover:bg-opacity-90 transition-all card-shadow disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+            ${currentStep === totalSteps ? 'View Estimate' : 'Next Question'}
+            <i class="fa-solid fa-arrow-right ml-2"></i>
+          </button>
+        </div>
+      ` : '';
 
-        // --- FLOW CONTROL ---
+      container.innerHTML = `
+        <div class="max-w-4xl mx-auto">
+          <div class="mb-6 ${isPathSelection ? 'hidden' : ''}">
+            <p class="text-secondary-grey text-sm mb-2">Step ${currentStep} of ${totalSteps}</p>
+            <div class="progress-bar-container">
+              <div class="progress-bar" style="width: ${progress}%;"></div>
+            </div>
+          </div>
 
-        function goToPage(page) {
-            state.currentPage = page;
-            const container = document.getElementById('app-container');
-            container.innerHTML = '';
+          <div class="bg-white p-6 sm:p-8 rounded-xl card-shadow">
+            <h2 class="text-2xl sm:text-3xl font-bold text-primary-dark mb-2">${questionData.label}</h2>
+            ${questionData.subtext ? `<p class="text-secondary-grey mb-6">${questionData.subtext}</p>` : ''}
 
+            <div id="options-container" class="${isMultiSelect ? 'space-y-4' : 'grid grid-cols-1 sm:grid-cols-2 gap-4'}">
+              ${questionData.options.map(option => createOptionHTML(questionData.id, option, isMultiSelect)).join('')}
+            </div>
+          </div>
+          ${navButtons}
+        </div>
+      `;
 
-            switch (page) {
-                case 'home':
-                    state.path = null;
-                    state.currentQuestionIndex = 0;
-                    state.answers = {};
-                    state.results = { complexityScore: 0, complexityLevel: 'Low', estimatedPrice: null, breakdown: [], needsReview: false, reviewRecommended: false, recommendedTier: null, tierPrices: { Compliance: 0, Strategy: 0, Bundle: 0 } };
-                    state.addOnsSelected = new Set(); // Reset add-ons
-                    state.advancedPlanningSelected = false; // Reset advanced planning
-                    state.allAddOnsVisible = false; // Reset accordion
-                    renderHome(container);
-                    break;
-                case 'assessment':
-                    renderAssessment(container);
-                    break;
-                case 'question':
-                    renderQuestion(container);
-                    break;
-                case 'results':
-                    calculateResults();
-                    renderResults(container);
-                    break;
-                
-                default:
-                    // Fallback to home
-                    goToPage('home');
-            }
-                scrollAppIntoView();
+      updateNextButtonState(questionData.id);
+    }
+
+    function createOptionHTML(questionId, option, isMultiSelect) {
+      const isSelected = isMultiSelect
+        ? (state.answers[questionId] || []).includes(option.value)
+        : state.answers[questionId] === option.value;
+
+      const baseClasses = "rounded-lg p-4 sm:p-6 transition-all cursor-pointer border-2 hover:border-accent-gold card-shadow";
+      const activeClasses = "border-accent-gold bg-background-light";
+      const inactiveClasses = "border-gray-200 bg-white";
+
+      if (isMultiSelect) {
+        return `
+          <div onclick="handleAnswer('${questionId}', '${option.value}', true)" class="${baseClasses} ${isSelected ? activeClasses : inactiveClasses} flex items-center justify-between">
+            <label class="text-lg font-semibold text-primary-dark flex-grow">
+              ${option.label}
+            </label>
+            <div class="w-6 h-6 border-2 rounded-md flex items-center justify-center transition-colors ${isSelected ? 'bg-accent-gold border-accent-gold' : 'border-secondary-grey'}">
+              ${isSelected ? '<i class="fa-solid fa-check text-white text-xs"></i>' : ''}
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <div onclick="handleAnswer('${questionId}', '${option.value}', false)" class="${baseClasses} ${isSelected ? activeClasses : inactiveClasses} text-center">
+          ${option.icon ? `<i class="fa-solid ${option.icon} text-4xl mb-3 text-accent-gold"></i>` : ''}
+          <h4 class="text-xl font-bold text-primary-dark mb-1">${option.label}</h4>
+          ${option.description ? `<p class="text-sm text-secondary-grey">${option.description}</p>` : ''}
+        </div>
+      `;
+    }
+
+    function handleAnswer(questionId, value, isMultiSelect) {
+      if (questionId === 'path') {
+        state.path = value;
+        state.answers = { 'path': value };
+        state.currentQuestionIndex = 0;
+        goToPage('assessment');
+        return;
+      }
+
+      if (isMultiSelect) {
+        let current = state.answers[questionId] || [];
+        if (current.includes(value)) current = current.filter(v => v !== value);
+        else current.push(value);
+
+        if (value === 'None' && current.length > 1) current = ['None'];
+        else if (value !== 'None' && current.includes('None')) current = current.filter(v => v !== 'None');
+
+        state.answers[questionId] = current;
+      } else {
+        state.answers[questionId] = value;
+      }
+
+      const container = document.getElementById('options-container');
+      if (container) {
+        const q = state.path === 'Individual'
+          ? QUESTIONS.Individual[state.currentQuestionIndex]
+          : QUESTIONS.BusinessRE[state.currentQuestionIndex];
+        container.innerHTML = q.options.map(option => createOptionHTML(q.id, option, isMultiSelect)).join('');
+      }
+
+      updateNextButtonState(questionId);
+    }
+
+    function updateNextButtonState(questionId) {
+      const nextButton = document.getElementById('next-button');
+      if (!nextButton) return;
+      const answer = state.answers[questionId];
+      const isAnswered = Array.isArray(answer) ? answer.length > 0 : !!answer;
+      nextButton.disabled = !isAnswered;
+    }
+
+    function navigateQuestion(direction) {
+      if (direction > 0) {
+        const questionSet = state.path === 'Individual' ? QUESTIONS.Individual : QUESTIONS.BusinessRE;
+        const questionId = questionSet[state.currentQuestionIndex].id;
+        const answer = state.answers[questionId];
+        const isAnswered = Array.isArray(answer) ? answer.length > 0 : !!answer;
+        if (!isAnswered) return;
+      }
+
+      state.currentQuestionIndex += direction;
+      if (state.currentQuestionIndex < 0) {
+        state.path = null;
+        goToPage('assessment');
+      } else {
+        goToPage('question');
+      }
+    }
+
+    // --- CALCULATION LOGIC ---
+    function getNumericAnswer(answer) {
+      if (!answer) return 0;
+      const numStr = answer.toString().split('-')[0].replace('+', '');
+      return parseInt(numStr) || 0;
+    }
+
+    function calculateResults() {
+      state.results = {
+        complexityScore: 0,
+        complexityLevel: 'Low',
+        estimatedPrice: null,
+        breakdown: [],
+        needsReview: false,
+        reviewRecommended: false,
+        recommendedTier: null,
+        tierPrices: { Compliance: 0, Strategy: 0, Bundle: 0 },
+      };
+
+      const path = state.path;
+      const answers = state.answers;
+
+      if (path === 'Individual') {
+        let price = PRICING_RULES_CONFIG.INDIVIDUAL_BASE_PRICE;
+        let reviewRecommended = false;
+        state.results.breakdown.push(`Base Tax Prep Price: $${PRICING_RULES_CONFIG.INDIVIDUAL_BASE_PRICE}`);
+
+        if (answers.schedule_d_heavy === 'Yes') {
+          price += PRICING_RULES_CONFIG.INDIVIDUAL_ADDERS.SCHEDULE_D_HEAVY;
+          state.results.breakdown.push(`Investment Complexity: +$${PRICING_RULES_CONFIG.INDIVIDUAL_ADDERS.SCHEDULE_D_HEAVY}`);
         }
 
-        // --- RENDER FUNCTIONS ---
+        const rentalVal = answers.rentals;
+        const rentalPrice = PRICING_RULES_CONFIG.INDIVIDUAL_RENTALS[rentalVal];
+        if (rentalPrice === 'NEEDS_REVIEW') {
+          reviewRecommended = true;
+          state.results.needsReview = true;
+          state.results.breakdown.push(`6+ Rentals: Hard Trigger`);
+        } else if (rentalPrice > 0) {
+          price += rentalPrice;
+          state.results.breakdown.push(`Rental Properties (${rentalVal}): +$${rentalPrice}`);
+        }
 
-        function renderHome(container) {
-            container.innerHTML = `
-                <div class="max-w-xl mx-auto text-center py-20 px-4 sm:px-0">
-                    <div class="mb-8">
-                        <i class="fa-solid fa-lightbulb text-6xl text-accent-gold"></i>
-                    </div>
-                    <h2 class="text-5xl font-extrabold text-primary-dark mb-4 leading-tight">
-                        Find the Right Level of CPA Support
-                    </h2>
-                    <p class="text-xl text-secondary-grey mb-10">
-                        Answer a few concise questions and get a clear recommendation and price estimate.
+        if (answers.schedule_c === 'Yes') {
+          price += PRICING_RULES_CONFIG.INDIVIDUAL_ADDERS.SCHEDULE_C;
+          state.results.breakdown.push(`Schedule C Small Business: +$${PRICING_RULES_CONFIG.INDIVIDUAL_ADDERS.SCHEDULE_C}`);
+        }
+
+        const k1sVal = answers.k1s;
+        const k1sPrice = PRICING_RULES_CONFIG.INDIVIDUAL_K1S[k1sVal];
+        if (k1sPrice === 'NEEDS_REVIEW') {
+          reviewRecommended = true;
+          state.results.needsReview = true;
+          state.results.breakdown.push(`3+ K-1s: Hard Trigger`);
+        } else if (k1sPrice > 0) {
+          price += k1sPrice;
+          state.results.breakdown.push(`K-1s (${k1sVal}): +$${k1sPrice}`);
+        }
+
+        const stateVal = answers.states;
+        const stateConfigPrice = PRICING_RULES_CONFIG.INDIVIDUAL_STATES[stateVal];
+        if (stateConfigPrice === 'NEEDS_REVIEW') {
+          reviewRecommended = true;
+          state.results.needsReview = true;
+          state.results.breakdown.push(`4+ States: Hard Trigger`);
+        } else if (stateConfigPrice > 0) {
+          const extraStates = getNumericAnswer(stateVal) - 1;
+          price += stateConfigPrice;
+          state.results.breakdown.push(`Additional States (${extraStates}): +$${stateConfigPrice}`);
+        }
+
+        const others = answers.other_complexity || [];
+        if (others.includes('crypto')) {
+          price += PRICING_RULES_CONFIG.INDIVIDUAL_ADDERS.CRYPTO;
+          state.results.breakdown.push(`Significant Crypto Activity: +$${PRICING_RULES_CONFIG.INDIVIDUAL_ADDERS.CRYPTO}`);
+        }
+        if (others.includes('amt_iso_espp')) {
+          price += PRICING_RULES_CONFIG.INDIVIDUAL_ADDERS.AMT_ISO_ESPP;
+          state.results.breakdown.push(`AMT/Stock Complexity: +$${PRICING_RULES_CONFIG.INDIVIDUAL_ADDERS.AMT_ISO_ESPP}`);
+        }
+        if (others.includes('foreign_reporting')) {
+          reviewRecommended = true;
+          state.results.needsReview = true;
+          state.results.breakdown.push(`Foreign Reporting (FBAR/8938): Hard Trigger`);
+        }
+
+        const unfiledVal = answers.unfiled_returns;
+        const unfiledPrice = PRICING_RULES_CONFIG.INDIVIDUAL_UNFILED_RETURNS[unfiledVal];
+        if (unfiledPrice === 'NEEDS_REVIEW') {
+          reviewRecommended = true;
+          state.results.needsReview = true;
+          state.results.breakdown.push(`3+ Unfiled Years: Hard Trigger`);
+        } else if (unfiledPrice > 0) {
+          price += unfiledPrice;
+          state.results.breakdown.push(`${unfiledVal} Unfiled Years: +$${unfiledPrice}`);
+        }
+
+        state.results.estimatedPrice = price;
+        state.results.recommendedTier = 'Tax Prep Estimate';
+
+        if (price > 3000 || state.results.needsReview) {
+          state.results.complexityLevel = 'High';
+          state.results.complexityScore = 90;
+        } else if (price > 1500) {
+          state.results.complexityLevel = 'Medium';
+          state.results.complexityScore = 55;
+        } else {
+          state.results.complexityLevel = 'Low';
+          state.results.complexityScore = 20;
+        }
+
+        state.results.reviewRecommended = reviewRecommended;
+      } else {
+        let totalScore = 0;
+        let reviewRecommended = false;
+        const complexityMap = PRICING_RULES_CONFIG.BUSINESS_COMPLEXITY_POINTS;
+        const businessAnswers = answers;
+
+        totalScore += complexityMap.entities[businessAnswers.entities] || 0;
+        totalScore += complexityMap.rentals_re[businessAnswers.rentals_re] || 0;
+        totalScore += complexityMap.states_re[businessAnswers.states_re] || 0;
+        totalScore += complexityMap.payroll[businessAnswers.payroll] || 0;
+        totalScore += complexityMap.bookkeeping[businessAnswers.bookkeeping] || 0;
+        totalScore += complexityMap.cleanup[businessAnswers.cleanup] || 0;
+        totalScore += complexityMap.notices[businessAnswers.notices] || 0;
+        totalScore += complexityMap.transactions[businessAnswers.transactions] || 0;
+
+        state.results.complexityScore = Math.min(100, totalScore);
+        const score = state.results.complexityScore;
+
+        const numEntities = getNumericAnswer(businessAnswers.entities);
+        const numRentals = getNumericAnswer(businessAnswers.rentals_re);
+        const numStates = getNumericAnswer(businessAnswers.states_re);
+        const isSeriousNotice = businessAnswers.notices === 'serious';
+        const isTwoPlusCleanup = businessAnswers.cleanup === '2+ years';
+        const isMissingReturns = businessAnswers.cleanup === 'missing business returns';
+        const isMajorTransaction = businessAnswers.transactions === 'acquisition/sale/major expansion';
+        const isHeavyBookkeeping = (businessAnswers.bookkeeping === '4-12' || businessAnswers.bookkeeping === '12+');
+
+        if (numEntities >= PRICING_RULES_CONFIG.BUSINESS_HARD_TRIGGERS.entities_min) state.results.needsReview = true;
+        if (numRentals >= PRICING_RULES_CONFIG.BUSINESS_HARD_TRIGGERS.rentals_min) state.results.needsReview = true;
+        if (numStates >= PRICING_RULES_CONFIG.BUSINESS_HARD_TRIGGERS.states_min) state.results.needsReview = true;
+        if (isMissingReturns) state.results.needsReview = true;
+
+        if (isMajorTransaction && totalScore >= PRICING_RULES_CONFIG.BUSINESS_HARD_TRIGGERS.transactions_major_and_high_complexity) {
+          state.results.needsReview = true;
+        }
+
+        if (isTwoPlusCleanup && isSeriousNotice) state.results.needsReview = true;
+
+        if (state.results.needsReview) {
+          reviewRecommended = true;
+          state.results.recommendedTier = 'Needs Review';
+        } else {
+          state.results.recommendedTier = 'Bundle';
+
+          if (score >= 65) state.results.complexityLevel = 'High';
+          else if (score >= 35) state.results.complexityLevel = 'Medium';
+          else state.results.complexityLevel = 'Low';
+
+          if (isSeriousNotice || isHeavyBookkeeping || isMajorTransaction) reviewRecommended = true;
+        }
+
+        const tiers = ['Compliance', 'Strategy', 'Bundle'];
+        let addersTotal = 0;
+
+        if (numEntities > 1) addersTotal += (numEntities - 1) * PRICING_RULES_CONFIG.BUSINESS_INCREMENTAL_ADDERS.entity_beyond_1;
+        if (numStates > 2) addersTotal += (numStates - 2) * PRICING_RULES_CONFIG.BUSINESS_INCREMENTAL_ADDERS.state_beyond_2;
+        if (numRentals > 3) addersTotal += (numRentals - 3) * PRICING_RULES_CONFIG.BUSINESS_INCREMENTAL_ADDERS.rental_beyond_3;
+
+        tiers.forEach(tier => {
+          const min = PRICING_RULES_CONFIG.BUSINESS_MIN_PRICES[tier];
+          const max = PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES[tier];
+
+          let priceBand = min + (max - min) * (score / 100);
+          let finalPrice = priceBand + addersTotal;
+
+          state.results.tierPrices[tier] = Math.round(finalPrice / 50) * 50;
+
+          if (tier === 'Bundle') {
+            state.results.estimatedPrice = state.results.tierPrices[tier];
+          }
+        });
+
+        if (state.results.estimatedPrice > PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES.Bundle) {
+          state.results.needsReview = true;
+          state.results.recommendedTier = 'Needs Review';
+          reviewRecommended = true;
+          state.results.breakdown.push(`Calculated Price ($${state.results.estimatedPrice}/mo) exceeds Tier Cap: Requires Senior Review.`);
+        }
+
+        state.results.breakdown.push(`Price Calculation Base Adders: $${addersTotal}/mo`);
+        state.results.breakdown.push(`Compliance Estimate: $${state.results.tierPrices.Compliance}/mo`);
+        state.results.breakdown.push(`Strategy Estimate: $${state.results.tierPrices.Strategy}/mo`);
+        state.results.breakdown.push(`Bundle Estimate: $${state.results.tierPrices.Bundle}/mo`);
+
+        state.results.reviewRecommended = reviewRecommended;
+      }
+    }
+
+    // --- HELPER RENDER FUNCTIONS FOR RESULTS ---
+    function scrollAppIntoView() {
+      const app = document.getElementById('app-container');
+      if (!app) return;
+      const headerOffset = 90;
+      const y = app.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+
+    function formatPriceDisplay(price, maxPrice, needsReview, isIndividual) {
+      const formattedPrice = price.toLocaleString();
+
+      if (isIndividual) {
+        if (needsReview) {
+          return {
+            price: `Starts at $${formattedPrice}`,
+            microcopy: "Personalized quote required after a quick scope review.",
+            tierDisplay: "Custom Quote Required",
+            ctaText: 'Book a quick scope call'
+          };
+        }
+        return {
+          price: `$${formattedPrice}`,
+          microcopy: "One-Time Price",
+          tierDisplay: "Individual Tax Filing",
+          ctaText: `Pay $${formattedPrice} and Get Started`
+        };
+      }
+
+      const maxCap = maxPrice || PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES.Bundle;
+      const isCapped = price > maxCap;
+
+      if (needsReview || isCapped) {
+        const displayPrice = maxCap.toLocaleString();
+        return {
+          price: `Starts at $${displayPrice}/mo`,
+          microcopy: "Personalized quote needed after a quick scope call.",
+          tierDisplay: "Custom Quote Required",
+          ctaText: 'Book a quick scope call'
+        };
+      }
+
+      return {
+        price: `Estimated $${formattedPrice}/mo`,
+        microcopy: "Estimated / mo",
+        tierDisplay: "Estimated",
+        ctaText: 'Discuss Scope'
+      };
+    }
+
+    function renderValueSection(isIndividual) {
+      const valueProps = isIndividual ? [
+        { icon: 'fa-shield-halved', title: 'Risk Reduction', detail: 'Ensure 100% compliance and minimize audit flags from complex personal transactions.' },
+        { icon: 'fa-sack-dollar', title: 'Proactive Savings', detail: 'Identify tax-saving opportunities like Roth conversions, capital loss harvesting, and estimate accuracy.' },
+        { icon: 'fa-handshake', title: 'Expert Partnership', detail: 'Get reliable CPA guidance for major life events and decision support.' },
+      ] : [
+        { icon: 'fa-handshake', title: 'A Proactive CPA Partner', detail: 'Move from reactive compliance to a year-round partnership focused on wealth preservation.' },
+        { icon: 'fa-chart-area', title: 'Strategic Tax Minimization', detail: 'Build a customized, multi-year plan to reduce taxes beyond routine preparation.' },
+        { icon: 'fa-calendar-check', title: 'Clean, Stress-Free Compliance', detail: 'Stay audit-ready across entity filings and multi-state requirements.' },
+      ];
+
+      const cardsHtml = valueProps.map(prop => `
+        <div class="bg-white p-6 rounded-xl card-shadow border-l-4 border-accent-gold/50 space-y-2">
+          <i class="fa-solid ${prop.icon} text-2xl text-accent-gold"></i>
+          <h5 class="text-lg font-semibold text-primary-dark">${prop.title}</h5>
+          <p class="text-sm text-secondary-grey">${prop.detail}</p>
+        </div>
+      `).join('');
+
+      return `
+        <div class="mb-10 mt-6">
+          <h3 class="text-2xl font-bold text-primary-dark mb-4 text-center">What We Deliver</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            ${cardsHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    function getSituationHtml(answers, isIndividual) {
+      const summaryBullets = [];
+      const keyAnswers = { ...answers };
+      delete keyAnswers.path;
+
+      if (isIndividual) {
+        if (keyAnswers.rentals !== '0') summaryBullets.push(`Reporting ${keyAnswers.rentals} rental properties.`);
+        if (keyAnswers.schedule_c === 'Yes') summaryBullets.push(`Own a Schedule C small business.`);
+        if (keyAnswers.k1s !== '0') summaryBullets.push(`Receive ${keyAnswers.k1s} K-1 forms.`);
+        if (keyAnswers.states !== '1') summaryBullets.push(`${getNumericAnswer(keyAnswers.states)} state filing requirements.`);
+        if (keyAnswers.unfiled_returns !== '0') summaryBullets.push(`${keyAnswers.unfiled_returns} prior year return(s) to file.`);
+        if (keyAnswers.other_complexity && keyAnswers.other_complexity.length > 0) summaryBullets.push('Additional complexity (crypto, foreign reporting, etc.).');
+      } else {
+        if (keyAnswers.entities !== '0') summaryBullets.push(`Manage ${keyAnswers.entities} business entities.`);
+        if (keyAnswers.rentals_re !== '0') summaryBullets.push(`Report ${keyAnswers.rentals_re} rental properties.`);
+        if (keyAnswers.states_re !== '1') summaryBullets.push(`${getNumericAnswer(keyAnswers.states_re)} state filing requirements for business/RE.`);
+        if (keyAnswers.bookkeeping !== 'up to date') summaryBullets.push(`Bookkeeping is currently ${keyAnswers.bookkeeping}.`);
+        if (keyAnswers.cleanup !== 'none') summaryBullets.push('Need prior year cleanup or missing returns resolved.');
+        if (keyAnswers.transactions !== 'none') summaryBullets.push(`Anticipate a major transaction soon.`);
+      }
+
+      while (summaryBullets.length < 3) {
+        summaryBullets.push(summaryBullets.length === 0
+          ? 'Standard W-2 tax preparation needs.'
+          : (isIndividual ? 'Basic investment activity.' : 'Standard entity setup and ongoing compliance.'));
+      }
+
+      return summaryBullets.slice(0, 5).map(item =>
+        `<li class="text-secondary-grey text-base flex items-start"><i class="fa-solid fa-square-check text-accent-gold text-xs mr-3 mt-1.5"></i> ${item}</li>`
+      ).join('');
+    }
+
+    function getHelpWithHtml(isIndividual) {
+      const helpBullets = [
+        `Proactive tax minimization strategies.`,
+        isIndividual ? `Compliance assurance and audit support.` : `Clean, audit-ready financials and streamlined reporting.`,
+        `Advice before money moves.`,
+        `Avoiding cash-flow surprises with tax estimates.`,
+      ];
+
+      return helpBullets.slice(0, 4).map(item =>
+        `<li class="text-secondary-grey text-base flex items-start"><i class="fa-solid fa-arrow-right-long text-accent-gold text-xs mr-3 mt-1.5"></i> ${item}</li>`
+      ).join('');
+    }
+
+    function getPricingTiersHtml(isIndividual, results) {
+      if (isIndividual) {
+        const formatted = formatPriceDisplay(results.estimatedPrice, null, results.needsReview, true);
+        const priceDisplay = formatted.price;
+        const tierName = formatted.tierDisplay;
+        const note = formatted.microcopy;
+        const ctaText = formatted.ctaText;
+        const ctaLink = results.needsReview ? '#schedule-call' : '#payment-link';
+
+        return `
+          <h3 class="text-2xl font-bold text-primary-dark mb-6 text-center">Your Service Option</h3>
+          <div class="max-w-md mx-auto">
+            <div class="bg-white p-6 rounded-xl card-shadow text-left border-2 border-accent-gold relative">
+              <span class="absolute top-0 right-0 mt-3 mr-3 bg-accent-gold text-white text-xs font-semibold px-3 py-1 rounded-full uppercase">Your Estimate</span>
+              <h4 class="text-2xl font-bold text-primary-dark mb-1">${tierName}</h4>
+              <p class="text-secondary-grey text-sm mb-4">Comprehensive annual tax preparation for your personal return.</p>
+
+              <p class="text-4xl font-extrabold text-primary-dark mb-4">${priceDisplay}</p>
+              <p class="text-sm text-secondary-grey mb-6">${results.needsReview ? '' : 'One-Time Price'}</p>
+
+              <a href="${ctaLink}" class="block bg-accent-gold text-white font-bold py-3 px-6 rounded-lg hover:bg-opacity-90 transition-all text-center">
+                ${ctaText}
+              </a>
+              ${results.needsReview ? `<p class="text-xs text-red-600 mt-2">${note}</p>` : ''}
+            </div>
+          </div>
+        `;
+      }
+
+      const tiers = [
+        { name: 'Compliance', description: 'Annual entity returns, basic tax estimates, and responsive support.', priceKey: 'Compliance' },
+        { name: 'Strategy', description: 'Quarterly strategy calls, proactive tax planning, and entity management.', priceKey: 'Strategy' },
+        { name: 'Bundle', description: 'Comprehensive planning, consultation, and bookkeeping integration.', priceKey: 'Bundle' }
+      ];
+
+      const tierHtml = tiers.map(tier => {
+        const isRecommended = tier.name === 'Bundle' && !results.needsReview;
+        const price = results.tierPrices[tier.name];
+        const max = PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES[tier.name];
+        const requiresReviewDisplay = results.needsReview || (price > max);
+        const formatted = formatPriceDisplay(price, max, requiresReviewDisplay, false);
+
+        const borderClasses = isRecommended
+          ? 'border-accent-gold border-2 relative ring-4 ring-accent-gold/20'
+          : 'border-gray-200 border relative';
+
+        return `
+          <div class="bg-white p-6 rounded-xl card-shadow text-left ${borderClasses}">
+            ${isRecommended ? '<span class="absolute top-0 right-0 mt-[-10px] mr-[-10px] bg-accent-gold text-white text-xs font-semibold px-3 py-1 rounded-full uppercase shadow-md">Recommended</span>' : ''}
+            <h4 class="text-xl font-bold text-primary-dark mb-1">${tier.name}</h4>
+            <p class="text-secondary-grey text-sm mb-4 h-10">${tier.description}</p>
+
+            <p class="text-3xl font-extrabold text-primary-dark mb-1">${formatted.price}</p>
+            <p class="text-sm text-secondary-grey mb-3">${requiresReviewDisplay ? 'Estimate shown, scope call required' : 'Estimated / mo'}</p>
+
+            <p class="text-xs text-secondary-grey leading-relaxed">
+              We’ll confirm exactly what’s included on the scope call. You won’t be billed from this page.
+            </p>
+
+            ${requiresReviewDisplay ? `<p class="text-xs text-red-600 mt-3">${formatted.microcopy}</p>` : ''}
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <h3 class="text-2xl font-bold text-primary-dark mb-6 text-center">Service Tiers</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">${tierHtml}</div>
+      `;
+    }
+
+    // --- NEW ADD-ONS LOGIC ---
+    const ADD_ONS_DATA = [
+      { id: 'cleanup_1040', name: 'Prior-year cleanup (1040)', benefit: 'Catch up missed personal returns and correct prior filings to get you compliant.' },
+      { id: 'cleanup_biz', name: 'Prior-year business returns (1120S / 1065)', benefit: 'Prepare and file missing business returns so future planning is accurate.' },
+      { id: 'notice_res', name: 'Notice resolution', benefit: 'Handle IRS or state notices so small issues don’t turn into penalties.' },
+      { id: 'multi_state', name: 'Multi-state returns', benefit: 'Prepare additional state filings triggered by work, rentals, or entities.' },
+      { id: 'payroll_comp', name: 'Payroll and quarterly compliance', benefit: 'Calculate and track payroll and estimated payments to avoid underpayment surprises.' },
+      { id: 'entity_setup', name: 'Entity setup or restructure', benefit: 'Form or adjust entities so income is reported and taxed correctly.' },
+      { id: 're_review', name: 'Real estate activity review', benefit: 'Review rental activity, depreciation, and loss limitations for accuracy.' },
+      { id: 'ira_strategy', name: 'Retirement and IRA strategy support', benefit: 'Guidance on contributions, rollovers, and timing before you move funds.' },
+      { id: 'cost_seg', name: 'Cost segregation review', benefit: 'Evaluate whether accelerated depreciation makes sense for your properties.' },
+      { id: 'acq_modeling', name: 'Acquisition modeling support', benefit: 'Analyze tax impact of buying or selling a business before signing anything.' },
+    ];
+
+    function checkAddOnRecommendation(addOnId, answers, path) {
+      const isBusinessPath = path !== 'Individual';
+
+      const numEntities = isBusinessPath ? getNumericAnswer(answers.entities) : 0;
+      const numRentals = isBusinessPath ? getNumericAnswer(answers.rentals_re) : getNumericAnswer(answers.rentals);
+      const isMissingBizReturns = isBusinessPath && answers.cleanup === 'missing business returns';
+      const numPriorYears = isBusinessPath ? getNumericAnswer(answers.cleanup) : getNumericAnswer(answers.unfiled_returns);
+      const numStates = isBusinessPath ? getNumericAnswer(answers.states_re) : getNumericAnswer(answers.states);
+      const payrollExists = isBusinessPath && answers.payroll !== 'none';
+      const hasNotices = isBusinessPath && answers.notices !== 'none';
+
+      const majorTransaction = isBusinessPath ? answers.transactions : null;
+
+      switch (addOnId) {
+        case 'cleanup_1040':
+          return path === 'Individual' && numPriorYears > 0;
+        case 'cleanup_biz':
+          return isBusinessPath && (isMissingBizReturns || (numEntities >= 1 && numPriorYears > 0));
+        case 'notice_res':
+          return hasNotices;
+        case 'multi_state':
+          return numStates >= 2;
+        case 'payroll_comp':
+          return payrollExists || isBusinessPath;
+        case 'entity_setup':
+          return numEntities >= 1 || isBusinessPath;
+        case 're_review':
+          return numRentals >= 1;
+        case 'ira_strategy':
+          return isBusinessPath && majorTransaction === 'IRA move';
+        case 'cost_seg':
+          return numRentals >= 3 || (isBusinessPath && majorTransaction === 'acquisition/sale/major expansion');
+        case 'acq_modeling':
+          return isBusinessPath && majorTransaction === 'acquisition/sale/major expansion';
+        default:
+          return false;
+      }
+    }
+
+    function toggleAddOn(addOnId) {
+      if (state.addOnsSelected.has(addOnId)) state.addOnsSelected.delete(addOnId);
+      else state.addOnsSelected.add(addOnId);
+      renderResults(document.getElementById('app-container'));
+    }
+
+    function toggleAdvancedPlanning() {
+      state.advancedPlanningSelected = !state.advancedPlanningSelected;
+      renderResults(document.getElementById('app-container'));
+    }
+
+    function toggleAllAddOnsVisibility() {
+      state.allAddOnsVisible = !state.allAddOnsVisible;
+      renderResults(document.getElementById('app-container'));
+    }
+
+    function togglePremiumVisibility() {
+      state.premiumVisible = !state.premiumVisible;
+      renderResults(document.getElementById('app-container'));
+    }
+
+    // NEW: simplified add-ons UI (less buttons, calmer rows)
+    function renderRecommendedAddOns(results, answers, path) {
+      if (path === 'Individual' || results.needsReview) return '';
+
+      const allAddOns = ADD_ONS_DATA.filter(addon => checkAddOnRecommendation(addon.id, answers, path));
+      if (allAddOns.length === 0) return '';
+
+      const top = allAddOns.slice(0, 3);
+      const remaining = allAddOns.slice(3);
+
+      const row = (addon) => {
+        const isSelected = state.addOnsSelected.has(addon.id);
+        return `
+          <div
+            onclick="toggleAddOn('${addon.id}')"
+            class="p-4 flex items-start justify-between gap-4 cursor-pointer transition rounded-lg border
+              ${isSelected ? 'border-accent-gold bg-background-light/60 ring-2 ring-accent-gold/10' : 'border-gray-200 bg-white hover:bg-gray-50'}"
+          >
+            <div class="space-y-1">
+              <p class="font-semibold text-primary-dark">${addon.name}</p>
+              <p class="text-sm text-secondary-grey leading-relaxed">${addon.benefit}</p>
+            </div>
+
+            <div class="shrink-0 mt-0.5">
+              <span class="text-sm font-semibold ${isSelected ? 'text-accent-gold' : 'text-secondary-grey'}">
+                <i class="fa-solid ${isSelected ? 'fa-circle-check' : 'fa-circle-plus'} mr-1"></i>
+                ${isSelected ? 'Added' : 'Add'}
+              </span>
+            </div>
+          </div>
+        `;
+      };
+
+      const topHtml = top.map(row).join('');
+      const remainingHtml = remaining.map(row).join('');
+
+      return `
+        <div class="mt-14">
+          <h3 class="text-2xl font-bold text-primary-dark mb-2">Optional add-ons</h3>
+          <p class="text-secondary-grey mb-6">
+            These are common upgrades for situations like yours. Select any that apply.
+          </p>
+
+          <div class="space-y-3">
+            ${topHtml}
+          </div>
+
+          ${remaining.length ? `
+            <div class="mt-4">
+              <button onclick="toggleAllAddOnsVisibility()" class="w-full text-left p-4 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 transition flex items-center justify-between">
+                <span class="font-semibold text-primary-dark">See ${state.allAddOnsVisible ? 'fewer' : 'more'} add-ons (${remaining.length})</span>
+                <i class="fa-solid ${state.allAddOnsVisible ? 'fa-chevron-up' : 'fa-chevron-down'} text-secondary-grey text-sm"></i>
+              </button>
+
+              <div class="mt-3 space-y-3 ${state.allAddOnsVisible ? '' : 'hidden'}">
+                ${remainingHtml}
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    // NEW: collapsed premium section by default
+    function renderAdvancedTaxPlanning(results) {
+      const isHighComplexity = results.complexityLevel === 'High';
+      const isSelected = state.advancedPlanningSelected;
+
+      return `
+        <div class="mt-10">
+          <div class="divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white shadow-sm">
+            <button onclick="togglePremiumVisibility()" class="w-full text-left p-5 flex items-center justify-between hover:bg-gray-50 transition rounded-xl">
+              <div>
+                <p class="font-bold text-primary-dark">Premium project-based services</p>
+                <p class="text-sm text-secondary-grey">For acquisitions, restructuring, and major planning.</p>
+              </div>
+              <i class="fa-solid ${state.premiumVisible ? 'fa-chevron-up' : 'fa-chevron-down'} text-secondary-grey text-sm"></i>
+            </button>
+
+            <div class="${state.premiumVisible ? 'block' : 'hidden'} p-5">
+              <div class="rounded-xl border ${isSelected ? 'border-accent-gold bg-background-light/60 ring-2 ring-accent-gold/10' : 'border-gray-200 bg-white'} p-5 transition">
+                <div class="flex items-start justify-between gap-4">
+                  <div>
+                    <h4 class="text-lg font-bold text-primary-dark">Advanced tax planning</h4>
+                    <p class="text-sm text-secondary-grey mt-1 leading-relaxed">
+                      High-impact planning for major moves outside routine compliance.
                     </p>
-                    <button onclick="goToPage('assessment')" class="bg-accent-gold text-white font-bold py-3 px-8 rounded-lg text-lg hover:bg-opacity-90 transition-all card-shadow">
-                        Start Assessment
-                        <i class="fa-solid fa-arrow-right ml-2"></i>
-                    </button>
-                    <p class="text-sm text-secondary-grey mt-4">
-                        2–4 minutes. No obligation.
-                    </p>
+
+                    <ul class="space-y-2 text-sm text-primary-dark pt-3">
+                      <li class="flex items-start"><i class="fa-solid fa-circle-check text-accent-gold mr-3 mt-1 text-sm"></i>Business acquisition or sale planning</li>
+                      <li class="flex items-start"><i class="fa-solid fa-circle-check text-accent-gold mr-3 mt-1 text-sm"></i>Entity restructuring and tax modeling</li>
+                      <li class="flex items-start"><i class="fa-solid fa-circle-check text-accent-gold mr-3 mt-1 text-sm"></i>Multi-year strategy coordination</li>
+                    </ul>
+
+                    ${isHighComplexity ? `
+                      <p class="text-xs text-secondary-grey italic pt-3">
+                        If complexity is high, this is often the best ROI on advisory spend.
+                      </p>
+                    ` : ''}
+                  </div>
+
+                  <button onclick="toggleAdvancedPlanning()" class="shrink-0 bg-accent-gold text-white font-bold py-2 px-4 rounded-lg hover:bg-opacity-90 transition">
+                    ${isSelected ? 'Remove' : 'Add'}
+                  </button>
                 </div>
-            `;
-        }
 
-        function renderAssessment(container) {
-            // First step is always the path selection
-            if (!state.path) {
-                const questionData = QUESTIONS.path_selection[0];
-                renderQuestionContent(container, questionData, 0, 1, 'path_selection');
-            } else {
-                renderQuestion(container);
-            }
-        }
+                <p class="text-xs text-secondary-grey mt-3">Quoted after a short scope call.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
 
-        function renderQuestion(container) {
-            const questionSet = state.path === 'Individual' ? QUESTIONS.Individual : QUESTIONS.BusinessRE;
-            const qIndex = state.currentQuestionIndex;
+    // --- RESULTS PAGE RENDER ---
+    function renderResults(container) {
+      const isIndividual = state.path === 'Individual';
+      const results = state.results;
+      const selectedAddOnsCount = state.addOnsSelected.size;
+      const isReviewRequired = results.needsReview;
 
-            if (qIndex >= questionSet.length) {
-                // Assessment complete, go to results
-                goToPage('results');
-                return;
-            }
+      let heroFormatted;
+      const bundleMax = PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES.Bundle;
 
-            const questionData = questionSet[qIndex];
-            const totalQuestions = questionSet.length;
-            renderQuestionContent(container, questionData, qIndex + 1, totalQuestions, state.path);
-        }
+      if (isIndividual) {
+        heroFormatted = formatPriceDisplay(results.estimatedPrice, null, isReviewRequired, true);
+      } else {
+        const bundlePrice = results.tierPrices.Bundle;
+        const isOverMax = bundlePrice > bundleMax;
 
-        function renderQuestionContent(container, questionData, currentStep, totalSteps, questionSetKey) {
-            const isPathSelection = questionSetKey === 'path_selection';
-            const progress = (currentStep / totalSteps) * 100;
-            const isMultiSelect = questionData.type === 'multi-select-list';
-            const navButtons = !isPathSelection ? `
-                <div class="flex justify-between mt-8">
-                    <button onclick="navigateQuestion(-1)" class="text-secondary-grey hover:text-primary-dark py-2 px-4 rounded-lg font-semibold transition-colors">
-                        <i class="fa-solid fa-arrow-left mr-2"></i> Previous
-                    </button>
-                    <button onclick="navigateQuestion(1)" id="next-button" class="bg-accent-gold text-white font-bold py-3 px-8 rounded-lg hover:bg-opacity-90 transition-all card-shadow disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                        ${currentStep === totalSteps ? 'View Estimate' : 'Next Question'}
-                        <i class="fa-solid fa-arrow-right ml-2"></i>
-                    </button>
+        heroFormatted = formatPriceDisplay(
+          bundlePrice,
+          bundleMax,
+          isReviewRequired || isOverMax,
+          false
+        );
+      }
+
+      const heroPriceDisplay = heroFormatted.price;
+      const heroTierDisplay = isReviewRequired ? 'Custom Quote Required' : (results.recommendedTier || 'Custom Quote Required');
+      const heroTimeDisplay = isIndividual ? 'ONE-TIME PRICE' : 'MONTHLY SUBSCRIPTION';
+
+      const reviewBannerClasses = isReviewRequired
+        ? 'border-t border-b border-gray-200 bg-background-light text-primary-dark p-4 mb-6 rounded-md text-left'
+        : 'border border-gray-200 bg-white text-primary-dark p-4 mb-6 rounded-md text-left';
+
+      let recommendationSentence;
+      if (isReviewRequired) {
+        recommendationSentence = `Your situation needs a brief scope call to confirm the final pricing and the right approach.`;
+      } else if (isIndividual) {
+        recommendationSentence = `Based on your answers, we can confirm your full-scope tax prep price and start onboarding right away.`;
+      } else {
+        recommendationSentence = `Based on your answers, the ${results.recommendedTier} tier is the best fit for year-round support.`;
+      }
+
+      const situationHtml = getSituationHtml(state.answers, isIndividual);
+      const helpWithHtml = getHelpWithHtml(isIndividual);
+
+      const hasUpgrades = selectedAddOnsCount > 0 || state.advancedPlanningSelected;
+
+      const finalCtaLink = '#schedule-call';
+      const finalCtaText = isIndividual && !hasUpgrades && !isReviewRequired
+        ? heroFormatted.ctaText
+        : `Book a quick scope call`;
+
+      const finalMicrocopy = isIndividual && !hasUpgrades && !isReviewRequired
+        ? 'No obligation. Your payment starts secure onboarding.'
+        : '15 minutes, confirm scope and pricing.';
+
+      const packageOptionsHtml = getPricingTiersHtml(isIndividual, results);
+      const recommendedAddOnsHtml = renderRecommendedAddOns(results, state.answers, state.path);
+      const advancedPlanningHtml = renderAdvancedTaxPlanning(results);
+
+      container.innerHTML = `
+        <div class="max-w-4xl mx-auto">
+          <!-- SECTION 1: Header -->
+          <div class="text-left mb-8">
+            <h2 class="text-4xl font-extrabold text-primary-dark mb-2">Assessment Complete</h2>
+            <p class="text-xl text-secondary-grey">
+              Here’s a preliminary recommendation and price estimate based on your inputs.
+            </p>
+          </div>
+
+          <!-- VALUE PROPOSITION -->
+          ${renderValueSection(isIndividual)}
+
+          <!-- SECTION 2: HERO -->
+          <div class="grid grid-cols-1 gap-6 mb-10">
+            <div class="bg-white p-8 rounded-xl card-shadow border-2 ${isReviewRequired ? 'border-gray-400 bg-background-light/70' : 'border-accent-gold'} relative">
+              <h3 class="text-xl font-bold text-secondary-grey mb-4 uppercase tracking-wider">Recommended Tier</h3>
+
+              <p class="text-5xl font-extrabold text-primary-dark mb-1 leading-none">${heroTierDisplay}</p>
+              <p class="text-4xl font-extrabold text-accent-gold mb-4">${heroPriceDisplay}</p>
+              <p class="text-sm text-secondary-grey mb-6 font-semibold">${heroTimeDisplay}</p>
+
+              ${isReviewRequired || results.reviewRecommended ? `
+                <div class="${reviewBannerClasses}">
+                  <p class="font-semibold text-sm">${isReviewRequired ? 'Next Step:' : 'Suggested Next Step:'}</p>
+                  <p class="text-xs text-secondary-grey mt-1">${heroFormatted.microcopy}</p>
                 </div>
-            ` : '';
+              ` : ''}
 
-            // Render Header and Progress
-            container.innerHTML = `
-                <div class="max-w-4xl mx-auto">
-                    <div class="mb-6 ${isPathSelection ? 'hidden' : ''}">
-                        <p class="text-secondary-grey text-sm mb-2">Step ${currentStep} of ${totalSteps}</p>
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" style="width: ${progress}%;"></div>
-                        </div>
-                    </div>
+              <p class="text-md text-primary-dark mb-8">${recommendationSentence}</p>
 
-                    <div class="bg-white p-6 sm:p-8 rounded-xl card-shadow">
-                        <h2 class="text-2xl sm:text-3xl font-bold text-primary-dark mb-2">${questionData.label}</h2>
-                        ${questionData.subtext ? `<p class="text-secondary-grey mb-6">${questionData.subtext}</p>` : ''}
+              <a href="${finalCtaLink}" class="block bg-accent-gold text-white font-bold py-3 px-6 rounded-lg hover:bg-opacity-90 transition-all text-center">
+                ${finalCtaText}
+              </a>
+              <p class="text-sm text-secondary-grey mt-3">${finalMicrocopy}</p>
+            </div>
+          </div>
 
-                        <div id="options-container" class="${isMultiSelect ? 'space-y-4' : 'grid grid-cols-1 sm:grid-cols-2 gap-4'}">
-                            ${questionData.options.map(option => createOptionHTML(questionData.id, option, isMultiSelect)).join('')}
-                        </div>
-                    </div>
-                    ${navButtons}
-                </div>
-            `;
-            updateNextButtonState(questionData.id);
+          <!-- SECTION 3: SUMMARY CARDS -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            <div class="bg-white p-6 rounded-xl card-shadow">
+              <h4 class="text-xl font-bold text-primary-dark mb-4">Your Situation</h4>
+              <ul class="space-y-3 list-none p-0 m-0">
+                ${situationHtml}
+              </ul>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl card-shadow">
+              <h4 class="text-xl font-bold text-primary-dark mb-4">What You’ll Want Help With</h4>
+              <ul class="space-y-3 list-none p-0 m-0">
+                ${helpWithHtml}
+              </ul>
+            </div>
+          </div>
+
+          <!-- SECTION 4: PACKAGE OPTIONS -->
+          <div class="mb-10">
+            ${packageOptionsHtml}
+          </div>
+
+          <!-- ADD-ONS + PREMIUM -->
+          <section class="mt-16 space-y-8">
+            ${recommendedAddOnsHtml}
+            ${advancedPlanningHtml}
+          </section>
+
+          <!-- SECTION 5: FINAL CTA (secondary, quieter) -->
+          <div class="text-center mb-10 pt-6 border-t border-gray-200">
+            ${hasUpgrades ? `
+              <p class="text-sm text-green-700 font-semibold mb-3">
+                Selected upgrades will be confirmed during scoping.
+              </p>
+            ` : ''}
+
+            <p class="text-sm text-secondary-grey mb-3">
+              If you’re ready, use the button above. If you need it again, it’s here.
+            </p>
+
+            <a href="${finalCtaLink}" class="bg-white border border-gray-300 text-primary-dark font-bold py-3 px-8 rounded-lg text-lg hover:border-accent-gold transition-all card-shadow inline-block mb-3">
+              ${finalCtaText}
+              <i class="fa-solid fa-chevron-right ml-2"></i>
+            </a>
+
+            <p class="text-sm text-secondary-grey">${finalMicrocopy}</p>
+
+            <button onclick="copySummaryToClipboard()" class="text-secondary-grey hover:text-accent-gold text-sm font-semibold transition-colors mt-6 block mx-auto">
+              <i class="fa-solid fa-copy mr-1"></i> Copy summary
+            </button>
+            <p id="copy-message" class="text-sm text-green-600 mt-2 opacity-0 transition-opacity duration-300">Summary copied!</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- UTILITIES ---
+    function getAnswerSummary() {
+      let summary = `--- The Lighthouse Guide: Tax Clarity Assessment Summary ---\n`;
+      summary += `Session ID: ${state.sessionId}\n`;
+      summary += `Path Type: ${state.path}\n\n`;
+
+      if (state.results.needsReview) {
+        summary += `Recommendation: Custom Quote Required\n`;
+      } else {
+        summary += `Recommended Tier: ${state.results.recommendedTier}\n`;
+        summary += `Price Estimate: $${state.results.estimatedPrice.toLocaleString()}${state.path === 'Individual' ? ' (One-Time)' : '/mo (Subscription)'}\n`;
+      }
+
+      summary += `Complexity Score: ${state.results.complexityScore} (${state.results.complexityLevel})\n\n`;
+
+      if (state.addOnsSelected.size > 0) {
+        summary += `Selected Add-ons:\n`;
+        state.addOnsSelected.forEach(id => {
+          const addon = ADD_ONS_DATA.find(a => a.id === id);
+          summary += `- ${addon ? addon.name : id}\n`;
+        });
+      }
+
+      if (state.advancedPlanningSelected) {
+        summary += `\nAdvanced Tax Planning: Selected for Discussion\n`;
+      }
+
+      summary += `\nBreakdown:\n`;
+      state.results.breakdown.forEach(item => {
+        summary += `- ${item}\n`;
+      });
+
+      summary += `\nSelected Answers:\n`;
+      for (const [key, value] of Object.entries(state.answers)) {
+        if (key !== 'path') {
+          const displayValue = Array.isArray(value) ? value.join(', ') : value;
+          summary += `- ${key}: ${displayValue}\n`;
         }
-
-        function createOptionHTML(questionId, option, isMultiSelect) {
-            const isSelected = isMultiSelect
-                ? (state.answers[questionId] || []).includes(option.value)
-                : state.answers[questionId] === option.value;
-
-            const baseClasses = "rounded-lg p-4 sm:p-6 transition-all cursor-pointer border-2 hover:border-accent-gold card-shadow";
-            const activeClasses = "border-accent-gold bg-background-light";
-            const inactiveClasses = "border-gray-200 bg-white";
-
-            if (isMultiSelect) {
-                // Multi-select list row
-                return `
-                    <div onclick="handleAnswer('${questionId}', '${option.value}', true)" class="${baseClasses} ${isSelected ? activeClasses : inactiveClasses} flex items-center justify-between">
-                        <label class="text-lg font-semibold text-primary-dark flex-grow">
-                            ${option.label}
-                        </label>
-                        <div class="w-6 h-6 border-2 rounded-md flex items-center justify-center transition-colors ${isSelected ? 'bg-accent-gold border-accent-gold' : 'border-secondary-grey'}">
-                            ${isSelected ? '<i class="fa-solid fa-check text-white text-xs"></i>' : ''}
-                        </div>
-                    </div>
-                `;
-            } else {
-                // Single-select card (2x2 grid on desktop, stacked on mobile)
-                return `
-                    <div onclick="handleAnswer('${questionId}', '${option.value}', false)" class="${baseClasses} ${isSelected ? activeClasses : inactiveClasses} text-center">
-                        ${option.icon ? `<i class="fa-solid ${option.icon} text-4xl mb-3 text-accent-gold"></i>` : ''}
-                        <h4 class="text-xl font-bold text-primary-dark mb-1">${option.label}</h4>
-                        ${option.description ? `<p class="text-sm text-secondary-grey">${option.description}</p>` : ''}
-                    </div>
-                `;
-            }
-        }
-
-        function handleAnswer(questionId, value, isMultiSelect) {
-            if (questionId === 'path') {
-                state.path = value;
-                state.answers = { 'path': value }; // Reset answers for the new path
-                state.currentQuestionIndex = 0;
-                goToPage('assessment');
-                return;
-            }
-
-            if (isMultiSelect) {
-                let current = state.answers[questionId] || [];
-                if (current.includes(value)) {
-                    current = current.filter(v => v !== value);
-                } else {
-                    current.push(value);
-                }
-                // Special handling for 'None' in multi-select
-                if (value === 'None' && current.length > 1) {
-                    current = ['None'];
-                } else if (value !== 'None' && current.includes('None')) {
-                    current = current.filter(v => v !== 'None');
-                }
-
-                state.answers[questionId] = current;
-            } else {
-                state.answers[questionId] = value;
-            }
-            // Re-render only the options container to reflect the new selection status
-            const container = document.getElementById('options-container');
-            if (container) {
-                const q = state.path === 'Individual' ? QUESTIONS.Individual[state.currentQuestionIndex] : QUESTIONS.BusinessRE[state.currentQuestionIndex];
-                container.innerHTML = q.options.map(option => createOptionHTML(q.id, option, isMultiSelect)).join('');
-            }
-            updateNextButtonState(questionId);
-        }
-
-        function updateNextButtonState(questionId) {
-            const nextButton = document.getElementById('next-button');
-            if (nextButton) {
-                const answer = state.answers[questionId];
-                const isAnswered = Array.isArray(answer) ? answer.length > 0 : !!answer;
-                nextButton.disabled = !isAnswered;
-            }
-        }
-
-        function navigateQuestion(direction) {
-            // Check if current question is answered before moving forward
-            if (direction > 0) {
-                const questionSet = state.path === 'Individual' ? QUESTIONS.Individual : QUESTIONS.BusinessRE;
-                const questionId = questionSet[state.currentQuestionIndex].id;
-                const answer = state.answers[questionId];
-                const isAnswered = Array.isArray(answer) ? answer.length > 0 : !!answer;
-
-                if (!isAnswered) return; // Prevent navigation if not answered
-            }
-
-            state.currentQuestionIndex += direction;
-            if (state.currentQuestionIndex < 0) {
-                // Go back to path selection
-                state.path = null;
-                goToPage('assessment');
-            } else {
-                goToPage('question');
-            }
-        }
-
-        // --- CALCULATION LOGIC ---
-
-        function getNumericAnswer(answer) {
-            if (!answer) return 0;
-            // Ensure we handle numeric strings like '1-2' -> 1
-            const numStr = answer.toString().split('-')[0].replace('+', '');
-            return parseInt(numStr) || 0;
-        }
-
-        function calculateResults() {
-            // Reset results
-            state.results = { 
-                complexityScore: 0, 
-                complexityLevel: 'Low', 
-                estimatedPrice: null, 
-                breakdown: [], 
-                needsReview: false, // Hard Price Suppression
-                reviewRecommended: false, // Soft Review Banner
-                recommendedTier: null,
-                tierPrices: { Compliance: 0, Strategy: 0, Bundle: 0 },
-            };
-            const path = state.path;
-            const answers = state.answers;
-
-            if (path === 'Individual') {
-                let price = PRICING_RULES_CONFIG.INDIVIDUAL_BASE_PRICE;
-                let reviewRecommended = false;
-                state.results.breakdown.push(`Base Tax Prep Price: $${PRICING_RULES_CONFIG.INDIVIDUAL_BASE_PRICE}`);
-
-                // 1. Schedule D
-                if (answers.schedule_d_heavy === 'Yes') {
-                    price += PRICING_RULES_CONFIG.INDIVIDUAL_ADDERS.SCHEDULE_D_HEAVY;
-                    state.results.breakdown.push(`Investment Complexity: +$${PRICING_RULES_CONFIG.INDIVIDUAL_ADDERS.SCHEDULE_D_HEAVY}`);
-                }
-                
-                // 2. Rentals (Hard Trigger Check)
-                const rentalVal = answers.rentals;
-                const rentalPrice = PRICING_RULES_CONFIG.INDIVIDUAL_RENTALS[rentalVal];
-                if (rentalPrice === 'NEEDS_REVIEW') { reviewRecommended = true; state.results.needsReview = true; state.results.breakdown.push(`6+ Rentals: Hard Trigger`); }
-                else if (rentalPrice > 0) { price += rentalPrice; state.results.breakdown.push(`Rental Properties (${rentalVal}): +$${rentalPrice}`); }
-
-                // 3. Schedule C
-                if (answers.schedule_c === 'Yes') {
-                    price += PRICING_RULES_CONFIG.INDIVIDUAL_ADDERS.SCHEDULE_C;
-                    state.results.breakdown.push(`Schedule C Small Business: +$${PRICING_RULES_CONFIG.INDIVIDUAL_ADDERS.SCHEDULE_C}`);
-                }
-
-                // 4. K-1s (Hard Trigger Check)
-                const k1sVal = answers.k1s;
-                const k1sPrice = PRICING_RULES_CONFIG.INDIVIDUAL_K1S[k1sVal];
-                if (k1sPrice === 'NEEDS_REVIEW') { reviewRecommended = true; state.results.needsReview = true; state.results.breakdown.push(`3+ K-1s: Hard Trigger`); }
-                else if (k1sPrice > 0) { price += k1sPrice; state.results.breakdown.push(`K-1s (${k1sVal}): +$${k1sPrice}`); }
-
-                // 5. States (Hard Trigger Check)
-                const stateVal = answers.states;
-                const stateConfigPrice = PRICING_RULES_CONFIG.INDIVIDUAL_STATES[stateVal];
-                if (stateConfigPrice === 'NEEDS_REVIEW') { reviewRecommended = true; state.results.needsReview = true; state.results.breakdown.push(`4+ States: Hard Trigger`); }
-                else if (stateConfigPrice > 0) {
-                    const extraStates = getNumericAnswer(stateVal) - 1;
-                    price += stateConfigPrice;
-                    state.results.breakdown.push(`Additional States (${extraStates}): +$${stateConfigPrice}`);
-                }
-
-                // 6. Other Complexity (Multi-select) (Hard Trigger Check)
-                const others = answers.other_complexity || [];
-                if (others.includes('crypto')) {
-                    price += PRICING_RULES_CONFIG.INDIVIDUAL_ADDERS.CRYPTO;
-                    state.results.breakdown.push(`Significant Crypto Activity: +$${PRICING_RULES_CONFIG.INDIVIDUAL_ADDERS.CRYPTO}`);
-                }
-                if (others.includes('amt_iso_espp')) {
-                    price += PRICING_RULES_CONFIG.INDIVIDUAL_ADDERS.AMT_ISO_ESPP;
-                    state.results.breakdown.push(`AMT/Stock Complexity: +$${PRICING_RULES_CONFIG.INDIVIDUAL_ADDERS.AMT_ISO_ESPP}`);
-                }
-                if (others.includes('foreign_reporting')) {
-                    reviewRecommended = true; state.results.needsReview = true;
-                    state.results.breakdown.push(`Foreign Reporting (FBAR/8938): Hard Trigger`);
-                }
-
-                // 7. Unfiled Returns (Hard Trigger Check)
-                const unfiledVal = answers.unfiled_returns;
-                const unfiledPrice = PRICING_RULES_CONFIG.INDIVIDUAL_UNFILED_RETURNS[unfiledVal];
-                if (unfiledPrice === 'NEEDS_REVIEW') { reviewRecommended = true; state.results.needsReview = true; state.results.breakdown.push(`3+ Unfiled Years: Hard Trigger`); }
-                else if (unfiledPrice > 0) { price += unfiledPrice; state.results.breakdown.push(`${unfiledVal} Unfiled Years: +$${unfiledPrice}`); }
-
-                // Final Individual result
-                // Ensure price is set even if needsReview is true, so "Starts at" has a baseline
-                state.results.estimatedPrice = price;
-                
-                state.results.recommendedTier = 'Tax Prep Estimate';
-
-                // Complexity Meter Logic (simple proxy based on price)
-                if (price > 3000 || state.results.needsReview) {
-                    state.results.complexityLevel = 'High';
-                    state.results.complexityScore = 90;
-                } else if (price > 1500) {
-                    state.results.complexityLevel = 'Medium';
-                    state.results.complexityScore = 55;
-                } else {
-                    state.results.complexityLevel = 'Low';
-                    state.results.complexityScore = 20;
-                }
-                state.results.reviewRecommended = reviewRecommended;
-
-            } else { // Business, Real Estate, Business+RealEstate paths (B/RE)
-                let totalScore = 0;
-                let finalMonthlyPrice = 0;
-                let reviewRecommended = false; // Soft Review Banner flag
-                const complexityMap = PRICING_RULES_CONFIG.BUSINESS_COMPLEXITY_POINTS;
-                const businessAnswers = answers;
-
-                // --- 1. Calculate Base Complexity Score (Max 100) ---
-                totalScore += complexityMap.entities[businessAnswers.entities] || 0;
-                totalScore += complexityMap.rentals_re[businessAnswers.rentals_re] || 0;
-                totalScore += complexityMap.states_re[businessAnswers.states_re] || 0;
-                totalScore += complexityMap.payroll[businessAnswers.payroll] || 0;
-                totalScore += complexityMap.bookkeeping[businessAnswers.bookkeeping] || 0;
-                totalScore += complexityMap.cleanup[businessAnswers.cleanup] || 0;
-                totalScore += complexityMap.notices[businessAnswers.notices] || 0;
-                totalScore += complexityMap.transactions[businessAnswers.transactions] || 0;
-
-                state.results.complexityScore = Math.min(100, totalScore);
-                const score = state.results.complexityScore; // Use calculated score
-
-                // --- 2. Check Hard Needs Review Triggers for reviewRecommended banner ---
-                const numEntities = getNumericAnswer(businessAnswers.entities);
-                const numRentals = getNumericAnswer(businessAnswers.rentals_re);
-                const numStates = getNumericAnswer(businessAnswers.states_re);
-                const isSeriousNotice = businessAnswers.notices === 'serious';
-                const isTwoPlusCleanup = businessAnswers.cleanup === '2+ years';
-                const isMissingReturns = businessAnswers.cleanup === 'missing business returns';
-                const isMajorTransaction = businessAnswers.transactions === 'acquisition/sale/major expansion';
-                const isHeavyBookkeeping = (businessAnswers.bookkeeping === '4-12' || businessAnswers.bookkeeping === '12+');
-
-                // Hard escalation triggers (Override all other logic if needsReview = true)
-                if (numEntities >= PRICING_RULES_CONFIG.BUSINESS_HARD_TRIGGERS.entities_min) {
-                    state.results.needsReview = true;
-                }
-                if (numRentals >= PRICING_RULES_CONFIG.BUSINESS_HARD_TRIGGERS.rentals_min) {
-                    state.results.needsReview = true;
-                }
-                if (numStates >= PRICING_RULES_CONFIG.BUSINESS_HARD_TRIGGERS.states_min) {
-                    state.results.needsReview = true;
-                }
-                if (isMissingReturns) {
-                    state.results.needsReview = true;
-                }
-                if (isMajorTransaction) {
-                    // Check complexity threshold for major transaction hard trigger, assuming complexity score >= 70 is equivalent to high complexity
-                    if (totalScore >= PRICING_RULES_CONFIG.BUSINESS_HARD_TRIGGERS.transactions_major_and_high_complexity) {
-                        state.results.needsReview = true;
-                    }
-                }
-                // Specific hard trigger: prior_year_cleanup = 2_plus_prior_years AND irs_notices = serious
-                if (isTwoPlusCleanup && isSeriousNotice) {
-                    state.results.needsReview = true;
-                }
-
-                // If any hard trigger is met, set reviewRecommended.
-                if (state.results.needsReview) {
-                    reviewRecommended = true;
-                    state.results.recommendedTier = 'Needs Review';
-                } else {
-                    // --- Business Rule 1: ALWAYS Recommend Bundle if not Needs Review ---
-                    state.results.recommendedTier = 'Bundle';
-                    // Determine complexity level for display only
-                    if (score >= 65) {
-                        state.results.complexityLevel = 'High';
-                    } else if (score >= 35) {
-                        state.results.complexityLevel = 'Medium';
-                    } else {
-                        state.results.complexityLevel = 'Low';
-                    }
-                    
-                    // Soft triggers for reviewRecommended banner
-                    if (isSeriousNotice || isHeavyBookkeeping || isMajorTransaction) {
-                        reviewRecommended = true;
-                    }
-                }
-
-                // --- 3. Compute Dynamic Prices for ALL Tiers ---
-                const tiers = ['Compliance', 'Strategy', 'Bundle'];
-                let addersTotal = 0;
-
-                // Caching adders calculation (applied equally to all tiers)
-                if (numEntities > 1) {
-                    addersTotal += (numEntities - 1) * PRICING_RULES_CONFIG.BUSINESS_INCREMENTAL_ADDERS.entity_beyond_1;
-                }
-                if (numStates > 2) {
-                    addersTotal += (numStates - 2) * PRICING_RULES_CONFIG.BUSINESS_INCREMENTAL_ADDERS.state_beyond_2;
-                }
-                if (numRentals > 3) {
-                    addersTotal += (numRentals - 3) * PRICING_RULES_CONFIG.BUSINESS_INCREMENTAL_ADDERS.rental_beyond_3;
-                }
-
-                tiers.forEach(tier => {
-                    const min = PRICING_RULES_CONFIG.BUSINESS_MIN_PRICES[tier];
-                    const max = PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES[tier];
-
-                    // A) Linear mapping based on totalScore (0-100)
-                    let priceBand = min + (max - min) * (score / 100);
-
-                    // B) Apply incremental adders
-                    let finalPrice = priceBand + addersTotal;
-
-                    // C) Round to nearest $50
-                    state.results.tierPrices[tier] = Math.round(finalPrice / 50) * 50;
-
-                    // Capture the final Bundle price (used for estimatedPrice field)
-                    if (tier === 'Bundle') {
-                        state.results.estimatedPrice = state.results.tierPrices[tier];
-                    }
-                });
-
-                // D) Final Needs Review check based on cap break (If Bundle price exceeds its max)
-                if (state.results.estimatedPrice > PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES.Bundle) {
-                    state.results.needsReview = true;
-                    state.results.recommendedTier = 'Needs Review';
-                    // Keep the high price displayed as estimate
-                    reviewRecommended = true;
-                    state.results.breakdown.push(`Calculated Price ($${state.results.estimatedPrice}/mo) exceeds Tier Cap: Requires Senior Review.`);
-                }
-
-                // E) Log breakdown details based on tier prices
-                state.results.breakdown.push(`Price Calculation Base Adders: $${addersTotal}/mo`);
-                state.results.breakdown.push(`Compliance Estimate: $${state.results.tierPrices.Compliance}/mo`);
-                state.results.breakdown.push(`Strategy Estimate: $${state.results.tierPrices.Strategy}/mo`);
-                state.results.breakdown.push(`Bundle Estimate: $${state.results.tierPrices.Bundle}/mo`);
-                
-                state.results.reviewRecommended = reviewRecommended;
-            }
-        }
-        
-        // --- HELPER RENDER FUNCTIONS FOR RESULTS ---
-
-        function scrollAppIntoView() {
-  const app = document.getElementById('app-container');
-  if (!app) return;
-
-  // Height of sticky site header (adjust if needed)
-  const headerOffset = 90;
-
-  const y = app.getBoundingClientRect().top + window.pageYOffset - headerOffset;
-
-  window.scrollTo({ top: y, behavior: 'smooth' });
-}
-
-
-        /**
-         * 1. New helper function for conditional price formatting, ensuring "Starts at" display.
-         * @param {number} price The calculated price.
-         * @param {number | null} maxPrice The maximum price for the tier (null for Individual).
-         * @param {boolean} needsReview Whether a hard/cap review trigger was hit.
-         * @param {boolean} isIndividual Whether the path is Individual.
-         * @returns {{price: string, microcopy: string, tierDisplay: string, ctaText: string}}
-         */
-        function formatPriceDisplay(price, maxPrice, needsReview, isIndividual) {
-            const formattedPrice = price.toLocaleString();
-
-            if (isIndividual) {
-                if (needsReview) {
-                    return {
-                        price: `Starts at $${formattedPrice}`,
-                        microcopy: "Personalized quote required after a quick scope review.",
-                        tierDisplay: "Custom Quote Required", // Change 1: Softer language
-                        ctaText: 'Book a quick scope call' // Change 2: CTA text update
-                    };
-                }
-                return {
-                    price: `$${formattedPrice}`,
-                    microcopy: "One-Time Price",
-                    tierDisplay: "Individual Tax Filing",
-                    ctaText: `Pay $${formattedPrice} and Get Started`
-                };
-            }
-
-            // Business / Real Estate Logic (Monthly)
-            const maxCap = maxPrice || PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES.Bundle;
-            const isCapped = price > maxCap;
-
-            if (needsReview || isCapped) {
-                // If capped or needs review, always show "Starts at MAX" (or calculated price if individual)
-                const displayPrice = isIndividual ? formattedPrice : maxCap.toLocaleString();
-                
-                return {
-                    // Change 3: Always show 'Starts at $CAP/mo' when max is hit/exceeded or hard trigger
-                    price: `Starts at $${displayPrice}/mo`, 
-                    microcopy: "Personalized quote needed after a quick scope call.", // Change 4: Custom microcopy
-                    tierDisplay: "Custom Quote Required", // Change 5: Softer language
-                    ctaText: 'Book a quick scope call'
-                };
-            }
-            
-            // Normal B/RE Pricing
-            return {
-                price: `Estimated $${formattedPrice}/mo`, // Change 6: Add "Estimated" prefix for non-review
-                microcopy: "Estimated / mo",
-                tierDisplay: "Estimated", // Placeholder, determined in render logic
-                ctaText: 'Discuss Scope'
-            };
-        }
-
-        // 2. New function to render the value-driven section.
-        function renderValueSection(isIndividual) {
-            const valueProps = isIndividual ? [
-                { icon: 'fa-shield-halved', title: 'Risk Reduction', detail: 'Ensure 100% compliance and minimize audit flags from complex personal transactions.' },
-                { icon: 'fa-sack-dollar', title: 'Proactive Savings', detail: 'Identify tax-saving opportunities like ROTH conversions, capital loss harvesting, and estimate accuracy.' },
-                { icon: 'fa-handshake', title: 'Expert Partnership', detail: 'Gain unlimited access to CPA advice for major life events and decision support.' },
-            ] : [
-                // Updated copy for Business / Real Estate
-                { icon: 'fa-handshake', title: 'A Proactive CPA Partner', detail: 'Transition from reactive compliance to a year-round, strategic partnership focused on wealth preservation.' },
-                { icon: 'fa-chart-area', title: 'Strategic Tax Minimization', detail: 'Develop a customized, multi-year plan to legally reduce your tax burden below routine preparation.' },
-                { icon: 'fa-calendar-check', title: 'Clean, Stress-Free Compliance', detail: 'Ensure audit-ready financial statements, handle entity filings, and manage multi-state requirements seamlessly.' },
-            ];
-
-            const cardsHtml = valueProps.map(prop => `
-                <div class="bg-white p-6 rounded-xl card-shadow border-l-4 border-accent-gold/50 space-y-2">
-                    <i class="fa-solid ${prop.icon} text-2xl text-accent-gold"></i>
-                    <h5 class="text-lg font-semibold text-primary-dark">${prop.title}</h5>
-                    <p class="text-sm text-secondary-grey">${prop.detail}</p>
-                </div>
-            `).join('');
-
-            return `
-                <div class="mb-10 mt-6">
-                    <h3 class="text-2xl font-bold text-primary-dark mb-4 text-center">What We Deliver</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        ${cardsHtml}
-                    </div>
-                </div>
-            `;
-        }
-
-        function getSituationHtml(answers, isIndividual) {
-            const summaryBullets = [];
-            const keyAnswers = { ...answers };
-            delete keyAnswers.path;
-
-            // 1. Your Situation (3-5 bullets from answers)
-            if (isIndividual) {
-                if (keyAnswers.rentals !== '0') summaryBullets.push(`Reporting ${keyAnswers.rentals} rental properties.`);
-                if (keyAnswers.schedule_c === 'Yes') summaryBullets.push(`Own a Schedule C small business.`);
-                if (keyAnswers.k1s !== '0') summaryBullets.push(`Receive ${keyAnswers.k1s} K-1 forms.`);
-                if (keyAnswers.states !== '1') summaryBullets.push(`${getNumericAnswer(keyAnswers.states)} state filing requirements.`);
-                if (keyAnswers.unfiled_returns !== '0') summaryBullets.push(`${keyAnswers.unfiled_returns} prior year return(s) to file.`);
-                if (keyAnswers.other_complexity && keyAnswers.other_complexity.length > 0) summaryBullets.push('Additional complexity (crypto, foreign reporting, etc.).');
-            } else {
-                if (keyAnswers.entities !== '0') summaryBullets.push(`Manage ${keyAnswers.entities} business entities.`);
-                if (keyAnswers.rentals_re !== '0') summaryBullets.push(`Report ${keyAnswers.rentals_re} rental properties.`);
-                if (keyAnswers.states_re !== '1') summaryBullets.push(`${getNumericAnswer(keyAnswers.states_re)} state filing requirements for business/RE.`);
-                if (keyAnswers.bookkeeping !== 'up to date') summaryBullets.push(`Bookkeeping is currently ${keyAnswers.bookkeeping}.`);
-                if (keyAnswers.cleanup !== 'none') summaryBullets.push('Need prior year cleanup or missing returns resolved.');
-                if (keyAnswers.transactions !== 'none') summaryBullets.push(`Anticipate a major transaction soon.`);
-            }
-
-            // Fallback for minimum 3 bullets
-            while (summaryBullets.length < 3) {
-                summaryBullets.push(summaryBullets.length === 0 
-                    ? 'Standard W-2 tax preparation needs.' 
-                    : (isIndividual ? 'Basic investment activity.' : 'Standard entity setup and ongoing compliance.'));
-            }
-            
-            return summaryBullets.slice(0, 5).map(item => 
-                `<li class="text-secondary-grey text-base flex items-start"><i class="fa-solid fa-square-check text-accent-gold text-xs mr-3 mt-1.5"></i> ${item}</li>`
-            ).join('');
-        }
-        
-        function getHelpWithHtml(isIndividual) {
-            // 2. What you’ll want help with (3-4 fixed bullets for sales focus)
-            const helpBullets = [
-                `Proactive tax minimization strategies.`,
-                isIndividual ? `Compliance assurance and audit defense.` : `Clean, audit-ready financials and streamlined reporting.`,
-                `Ongoing advice before money moves.`,
-                `Avoiding cash-flow surprises with tax estimates.`,
-            ];
-
-            return helpBullets.slice(0, 4).map(item => 
-                `<li class="text-secondary-grey text-base flex items-start"><i class="fa-solid fa-arrow-right-long text-accent-gold text-xs mr-3 mt-1.5"></i> ${item}</li>`
-            ).join('');
-        }
-
-        function getPricingTiersHtml(isIndividual, results) {
-            if (isIndividual) {
-                const formatted = formatPriceDisplay(results.estimatedPrice, null, results.needsReview, true);
-                const priceDisplay = formatted.price;
-                const tierName = formatted.tierDisplay;
-                const note = formatted.microcopy;
-                const ctaText = formatted.ctaText;
-                const ctaLink = results.needsReview ? '#schedule-call' : '#payment-link';
-
-
-                return `
-                    <h3 class="text-2xl font-bold text-primary-dark mb-6 text-center">Your Service Option</h3>
-                    <div class="max-w-md mx-auto">
-                        <div class="bg-white p-6 rounded-xl card-shadow text-left border-2 border-accent-gold relative">
-                            <span class="absolute top-0 right-0 mt-3 mr-3 bg-accent-gold text-white text-xs font-semibold px-3 py-1 rounded-full uppercase">Your Estimate</span>
-                            <h4 class="text-2xl font-bold text-primary-dark mb-1">${tierName}</h4>
-                            <p class="text-secondary-grey text-sm mb-4">Comprehensive annual tax preparation for your personal return.</p>
-                            
-                            <p class="text-4xl font-extrabold text-primary-dark mb-4">${priceDisplay}</p>
-                            <p class="text-sm text-secondary-grey mb-6">${results.needsReview ? '' : 'One-Time Price'}</p>
-                            
-                            <a href="${ctaLink}" class="block bg-accent-gold text-white font-bold py-3 px-6 rounded-lg hover:bg-opacity-90 transition-all text-center">
-                                ${ctaText}
-                            </a>
-                            ${results.needsReview ? `<p class="text-xs text-red-600 mt-2">${note}</p>` : ''}
-                        </div>
-                    </div>
-                `;
-            }
-
-            // Business / Real Estate Tiers
-            const tiers = [
-                { name: 'Compliance', description: 'Annual entity returns, basic tax estimates, and responsive support.', priceKey: 'Compliance' },
-                { name: 'Strategy', description: 'Quarterly strategy calls, proactive tax planning, and entity management.', priceKey: 'Strategy' },
-                { name: 'Bundle', description: 'Comprehensive planning, unlimited consultation, and full bookkeeping integration.', priceKey: 'Bundle' }
-            ];
-
-            const tierHtml = tiers.map(tier => {
-                const isRecommended = tier.name === 'Bundle' && !results.needsReview;
-                const price = results.tierPrices[tier.name];
-                const max = PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES[tier.name];
-                const requiresReviewDisplay = results.needsReview || (price > max);
-                
-                const formatted = formatPriceDisplay(price, max, requiresReviewDisplay, false);
-
-                const borderClasses = isRecommended ? 'border-accent-gold border-2 relative ring-4 ring-accent-gold/20' : 'border-gray-200 border relative';
-                const priceDisplay = formatted.price;
-                const descriptionText = tier.description;
-                
-                const ctaLink = '#schedule-call'; // Always go to schedule call from the tier cards.
-                const ctaText = 'Book a quick scope call'; // Softer CTA
-
-                return `
-                    <div class="bg-white p-6 rounded-xl card-shadow text-left ${borderClasses}">
-                        ${isRecommended ? '<span class="absolute top-0 right-0 mt-[-10px] mr-[-10px] bg-accent-gold text-white text-xs font-semibold px-3 py-1 rounded-full uppercase shadow-md">Recommended</span>' : ''}
-                        <h4 class="text-xl font-bold text-primary-dark mb-1">${tier.name}</h4>
-                        <p class="text-secondary-grey text-sm mb-4 h-10">${descriptionText}</p>
-                        
-                        <p class="text-3xl font-extrabold text-primary-dark mb-1">${priceDisplay}</p>
-                        <p class="text-sm text-secondary-grey mb-6">${requiresReviewDisplay ? 'Capped Estimate' : 'Estimated / mo'}</p>
-                        
-                        <a href="${ctaLink}" class="block bg-accent-gold text-white font-bold py-3 px-6 rounded-lg hover:bg-opacity-90 transition-all text-center">
-                            ${ctaText}
-                        </a>
-                        ${requiresReviewDisplay ? `<p class="text-xs text-red-600 mt-2">${formatted.microcopy}</p>` : ''}
-                    </div>
-                `;
-            }).join('');
-
-            return `
-                <h3 class="text-2xl font-bold text-primary-dark mb-6 text-center">Your Service Options</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">${tierHtml}</div>
-            `;
-        }
-
-        // --- NEW ADD-ONS LOGIC ---
-
-        const ADD_ONS_DATA = [
-            { id: 'cleanup_1040', name: 'Prior-year cleanup (1040)', benefit: 'Catch up missed personal returns and correct prior filings to get you compliant.' },
-            { id: 'cleanup_biz', name: 'Prior-year business returns (1120S / 1065)', benefit: 'Prepare and file missing business returns so future planning is accurate.' },
-            { id: 'notice_res', name: 'Notice resolution', benefit: 'Handle IRS or state notices so small issues don’t turn into penalties.' },
-            { id: 'multi_state', name: 'Multi-state returns', benefit: 'Prepare additional state filings triggered by work, rentals, or entities.' },
-            { id: 'payroll_comp', name: 'Payroll and quarterly compliance', benefit: 'Calculate and track payroll and estimated payments to avoid underpayment surprises.' },
-            { id: 'entity_setup', name: 'Entity setup or restructure', benefit: 'Form or adjust entities so income is reported and taxed correctly.' },
-            { id: 're_review', name: 'Real estate activity review', benefit: 'Review rental activity, depreciation, and loss limitations for accuracy.' },
-            { id: 'ira_strategy', name: 'Retirement and IRA strategy support', benefit: 'Guidance on contributions, rollovers, and timing before you move funds.' },
-            { id: 'cost_seg', name: 'Cost segregation review', benefit: 'Evaluate whether accelerated depreciation makes sense for your properties.' },
-            { id: 'acq_modeling', name: 'Acquisition modeling support', benefit: 'Analyze tax impact of buying or selling a business before signing anything.' },
-        ];
-
-        function checkAddOnRecommendation(addOnId, answers, path) {
-            const isBusinessPath = path !== 'Individual';
-            
-            // Helper values
-            const numEntities = isBusinessPath ? getNumericAnswer(answers.entities) : 0;
-            const numRentals = isBusinessPath ? getNumericAnswer(answers.rentals_re) : getNumericAnswer(answers.rentals);
-            const isMissingBizReturns = isBusinessPath && answers.cleanup === 'missing business returns';
-            const numPriorYears = isBusinessPath ? getNumericAnswer(answers.cleanup) : getNumericAnswer(answers.unfiled_returns);
-            const numStates = isBusinessPath ? getNumericAnswer(answers.states_re) : getNumericAnswer(answers.states);
-            const payrollExists = isBusinessPath && answers.payroll !== 'none';
-            const hasNotices = isBusinessPath && answers.notices !== 'none';
-
-            const majorTransaction = isBusinessPath ? answers.transactions : null;
-
-            switch (addOnId) {
-                case 'cleanup_1040':
-                    return path === 'Individual' && numPriorYears > 0;
-                case 'cleanup_biz':
-                    return isBusinessPath && (isMissingBizReturns || (numEntities >= 1 && numPriorYears > 0));
-                case 'notice_res':
-                    return hasNotices;
-                case 'multi_state':
-                    return numStates >= 2;
-                case 'payroll_comp':
-                    return payrollExists || isBusinessPath; // Assume if they are on a business path, this is relevant
-                case 'entity_setup':
-                    return numEntities >= 1 || isBusinessPath; // Assume if they are on a business path, this is relevant
-                case 're_review':
-                    return numRentals >= 1;
-                case 'ira_strategy':
-                    return isBusinessPath && majorTransaction === 'IRA move';
-                case 'cost_seg':
-                    return numRentals >= 3 || (isBusinessPath && majorTransaction === 'acquisition/sale/major expansion'); // Major RE expansion/sale triggers review
-                case 'acq_modeling':
-                    return isBusinessPath && majorTransaction === 'acquisition/sale/major expansion';
-                default:
-                    return false;
-            }
-        }
-
-        function toggleAddOn(addOnId) {
-            if (state.addOnsSelected.has(addOnId)) {
-                state.addOnsSelected.delete(addOnId);
-            } else {
-                state.addOnsSelected.add(addOnId);
-            }
-            renderResults(document.getElementById('app-container')); // Re-render the results page
-        }
-
-        function toggleAdvancedPlanning() {
-            state.advancedPlanningSelected = !state.advancedPlanningSelected;
-            renderResults(document.getElementById('app-container'));
-        }
-
-        function toggleAllAddOnsVisibility() {
-            state.allAddOnsVisible = !state.allAddOnsVisible;
-            renderResults(document.getElementById('app-container'));
-        }
-
-        function renderRecommendedAddOns(results, answers, path) {
-            // Only show add-ons for Business/RE paths
-            if (path === 'Individual' || results.needsReview) return '';
-
-            const allAddOns = ADD_ONS_DATA.filter(addon => checkAddOnRecommendation(addon.id, answers, path));
-            
-            // Only show the top 6 recommended, others go into "See All"
-            const recommendedAddOns = allAddOns.slice(0, 6);
-
-            if (recommendedAddOns.length === 0) return '';
-            
-            const recommendedHtml = recommendedAddOns.map(addon => {
-                const isSelected = state.addOnsSelected.has(addon.id);
-                const buttonClass = isSelected ? 'bg-secondary-grey text-white' : 'bg-accent-gold text-white';
-                const buttonText = isSelected ? 'Added' : 'Add this upgrade';
-                const isRecommended = checkAddOnRecommendation(addon.id, answers, path);
-
-                // Implements new card structure and spacing (p-6, space-y-2, leading-relaxed)
-                return `
-                    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition ${isSelected ? 'border-accent-gold ring-2 ring-accent-gold/20' : ''}">
-                        <div class="flex items-start justify-between">
-                            <div class="space-y-2">
-                                <h4 class="text-lg font-semibold text-primary-dark">
-                                    ${addon.name}
-                                </h4>
-                                <p class="text-sm text-secondary-grey leading-relaxed max-w-prose">
-                                    ${addon.benefit}
-                                </p>
-                            </div>
-                            ${isRecommended ? 
-                                `<span class="ml-4 inline-flex items-center rounded-full bg-accent-gold/20 px-3 py-1 text-xs font-semibold text-accent-gold">
-                                    Recommended
-                                </span>`
-                                : ''}
-                        </div>
-                        
-                        <button onclick="toggleAddOn('${addon.id}')" class="mt-4 w-full font-semibold py-2 rounded-lg hover:opacity-90 transition-colors ${buttonClass}">
-                            ${buttonText}
-                        </button>
-                    </div>
-                `;
-            }).join('');
-
-            return `
-                <div>
-                    <h3 class="text-2xl font-bold text-primary-dark mb-2">Recommended Add-Ons</h3>
-                    <p class="text-secondary-grey mb-6">Optional upgrades that commonly add the most value for situations like yours.</p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        ${recommendedHtml}
-                    </div>
-                    ${renderAllAddOns(recommendedAddOns.map(a => a.id))}
-                </div>
-            `;
-        }
-
-        function renderAllAddOns(recommendedIds) {
-            const remainingAddOns = ADD_ONS_DATA.filter(addon => !recommendedIds.includes(addon.id));
-            if (remainingAddOns.length === 0) return '';
-
-            const addOnRows = remainingAddOns.map(addon => {
-                const isSelected = state.addOnsSelected.has(addon.id);
-                const buttonText = isSelected ? 'Added' : 'Add';
-
-                // Implements new accordion row structure and spacing
-                return `
-                    <div class="p-5 flex items-start justify-between hover:bg-gray-50 transition ${isSelected ? 'bg-background-light/50' : ''}">
-                        <div class="space-y-1">
-                            <p class="font-medium text-primary-dark">
-                                ${addon.name}
-                            </p>
-                            <p class="text-sm text-secondary-grey leading-relaxed max-w-prose">
-                                ${addon.benefit}
-                            </p>
-                        </div>
-
-                        <button onclick="toggleAddOn('${addon.id}')" class="ml-4 text-sm font-semibold py-1 px-3 rounded-lg transition ${isSelected ? 'text-secondary-grey hover:text-primary-dark border border-secondary-grey' : 'text-accent-gold hover:text-primary-dark'}">
-                            ${buttonText}
-                        </button>
-                    </div>
-                `;
-            }).join('');
-
-            return `
-                <div class="divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white shadow-sm mt-6">
-                    <button onclick="toggleAllAddOnsVisibility()" class="w-full text-left p-5 flex items-center justify-between hover:bg-gray-50 transition rounded-xl">
-                        <span class="font-medium text-primary-dark">See all add-ons (${remainingAddOns.length} more)</span>
-                        <i class="fa-solid ${state.allAddOnsVisible ? 'fa-chevron-up' : 'fa-chevron-down'} text-secondary-grey text-sm"></i>
-                    </button>
-                    <div class="transition-all duration-300 overflow-hidden" style="max-height: ${state.allAddOnsVisible ? remainingAddOns.length * 90 + 20 + 'px' : '0'}">
-                        <div class="divide-y divide-gray-200">
-                            ${addOnRows}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        function renderAdvancedTaxPlanning(results) {
-            const isHighComplexity = results.complexityLevel === 'High';
-            const isSelected = state.advancedPlanningSelected;
-            
-            // Mapped colors: border-accent-gold, bg-background-light, bg-accent-gold
-            const containerClasses = `rounded-2xl border-2 p-8 space-y-4 transition-all ${isSelected ? 'border-accent-gold ring-4 ring-accent-gold/20' : 'border-background-light'} bg-background-light/70`;
-
-            // CTA button styles
-            const ctaButtonClasses = `inline-flex items-center rounded-lg px-5 py-2.5 text-sm font-semibold text-white transition ${isSelected ? 'bg-secondary-grey hover:bg-primary-dark' : 'bg-accent-gold hover:bg-opacity-90'}`;
-
-
-            return `
-                <div class="mt-12">
-                    <h3 class="text-2xl font-bold text-primary-dark mb-4 text-center">Premium Project-Based Services</h3>
-                    <div class="${containerClasses}">
-                        <h4 class="text-xl font-semibold text-primary-dark">
-                            Advanced Tax Planning
-                        </h4>
-
-                        <p class="text-sm text-secondary-grey leading-relaxed max-w-prose">
-                            High-impact planning for major financial moves outside routine compliance.
-                        </p>
-
-                        <ul class="space-y-2 text-sm text-primary-dark pt-2">
-                            <li class="flex items-start"><i class="fa-solid fa-circle-check text-accent-gold mr-3 mt-1 text-sm"></i>Business acquisition or sale planning</li>
-                            <li class="flex items-start"><i class="fa-solid fa-circle-check text-accent-gold mr-3 mt-1 text-sm"></i>Entity restructuring and tax modeling</li>
-                            <li class="flex items-start"><i class="fa-solid fa-circle-check text-accent-gold mr-3 mt-1 text-sm"></i>Multi-year strategy coordination</li>
-                        </ul>
-
-                        ${isHighComplexity ? `
-                            <p class="text-xs text-secondary-grey italic pt-2">
-                                At higher complexity levels, this is often the best return on advisory spend.
-                            </p>
-                        ` : ''}
-
-                        <button onclick="toggleAdvancedPlanning()" class="${ctaButtonClasses} w-full md:w-auto mt-4">
-                            Explore Advanced Tax Planning
-                        </button>
-                        <p class="text-xs text-secondary-grey mt-2">Quoted after a short scope call.</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderResults(container) {
-            const isIndividual = state.path === 'Individual';
-            const results = state.results;
-            const selectedAddOnsCount = state.addOnsSelected.size;
-            const isReviewRequired = results.needsReview;
-
-            let heroFormatted;
-            const bundleMax = PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES.Bundle; 
-
-            if (isIndividual) {
-                heroFormatted = formatPriceDisplay(results.estimatedPrice, null, isReviewRequired, true);
-            } else {
-                // For B/RE hero, we use the Bundle price logic
-                const bundlePrice = results.tierPrices.Bundle;
-                const isOverMax = bundlePrice > bundleMax;
-
-                heroFormatted = formatPriceDisplay(
-                    bundlePrice, 
-                    bundleMax, 
-                    isReviewRequired || isOverMax,
-                    false
-                );
-            }
-
-            const heroPriceDisplay = heroFormatted.price;
-            // Use softer language for the main tier display if review is needed
-            const heroTierDisplay = isReviewRequired ? 'Custom Quote Required' : (results.recommendedTier || 'Review Required'); 
-            const heroTimeDisplay = isIndividual ? 'ONE-TIME PRICE' : 'MONTHLY SUBSCRIPTION';
-            
-            // Determine review banner styling
-            // Changed from red/yellow to neutral/premium gray-100/accent style
-            const reviewBannerClasses = isReviewRequired 
-                ? 'border-t border-b border-gray-200 bg-background-light text-primary-dark p-4 mb-6 rounded-md text-left' 
-                : 'border-t border-b border-yellow-100 bg-yellow-50 text-yellow-800 p-4 mb-6 rounded-md text-left';
-
-            // Recommendation sentence
-            let recommendationSentence;
-            if (isReviewRequired) {
-                // Updated copy
-                recommendationSentence = `Your situation requires a brief discussion with a senior partner to determine the final, personalized pricing and optimal strategic approach.`; 
-            } else if (isIndividual) {
-                recommendationSentence = `Based on your answers, we can confirm your full-scope tax preparation price and begin the secure onboarding process immediately.`;
-            } else {
-                recommendationSentence = `The recommended ${results.recommendedTier} tier provides the necessary balance of compliance and strategic support for your business needs.`;
-            }
-            
-            const situationHtml = getSituationHtml(state.answers, isIndividual);
-            const helpWithHtml = getHelpWithHtml(isIndividual);
-
-            // CTA logic
-            const hasUpgrades = selectedAddOnsCount > 0 || state.advancedPlanningSelected;
-
-            const finalCtaLink = '#schedule-call'; // Always schedule call for complexity or upgrades/B+RE
-            
-            const finalCtaText = isIndividual && !hasUpgrades && !isReviewRequired
-                ? heroFormatted.ctaText // Keep Pay/Continue button for simple individual cases
-                : `Book a quick scope call`; // CTA text update
-
-            // Microcopy logic for the final CTA
-            const finalMicrocopy = isIndividual && !hasUpgrades && !isReviewRequired 
-                ? 'No obligation. Your payment will initiate the onboarding process.'
-                : '15 minutes, confirm scope and pricing.'; // New microcopy
-
-            // Conditional rendering of package options
-            const packageOptionsHtml = getPricingTiersHtml(isIndividual, results);
-            const recommendedAddOnsHtml = renderRecommendedAddOns(results, state.answers, state.path);
-            const advancedPlanningHtml = renderAdvancedTaxPlanning(results);
-            
-            container.innerHTML = `
-                <div class="max-w-4xl mx-auto">
-                    <!-- SECTION 1: Header -->
-                    <div class="text-left mb-8">
-                        <h2 class="text-4xl font-extrabold text-primary-dark mb-2">Assessment Complete</h2>
-                        <p class="text-xl text-secondary-grey">
-                            Here’s a preliminary recommendation and price estimate based on your inputs.
-                        </p>
-                    </div>
-
-                    <!-- NEW SECTION: VALUE PROPOSITION -->
-                    ${renderValueSection(isIndividual)}
-
-                    <!-- SECTION 2: HERO (Recommended Tier Card - Full Width) -->
-                    <div class="grid grid-cols-1 gap-6 mb-10">
-                        
-                        <!-- Recommended Tier Card (Full Width) -->
-                        <div class="bg-white p-8 rounded-xl card-shadow border-2 ${isReviewRequired ? 'border-gray-400 bg-background-light/70' : 'border-accent-gold'} relative"> <!-- Neutral/premium style for review -->
-                            <h3 class="text-xl font-bold text-secondary-grey mb-4 uppercase tracking-wider">Recommended Tier</h3>
-                            
-                            <p class="text-5xl font-extrabold text-primary-dark mb-1 leading-none">${heroTierDisplay}</p>
-                            <p class="text-4xl font-extrabold text-accent-gold mb-4">${heroPriceDisplay}</p>
-                            <p class="text-sm text-secondary-grey mb-6 font-semibold">${heroTimeDisplay}</p>
-
-                            <!-- Note for Review Recommended -->
-                            ${isReviewRequired || results.reviewRecommended ? `
-                                <div class="${reviewBannerClasses}"> <!-- Use new reviewBannerClasses -->
-                                    <p class="font-semibold text-sm">${isReviewRequired ? 'Next Step:' : 'Review Recommended:'}</p> <!-- Softened "Review Required" headline -->
-                                    <p class="text-xs">${heroFormatted.microcopy}</p>
-                                </div>
-                            ` : ''}
-                            <!-- End Note for Review Recommended -->
-
-                            <p class="text-md text-primary-dark mb-8">${recommendationSentence}</p>
-
-                            <a href="${finalCtaLink}" class="block bg-accent-gold text-white font-bold py-3 px-6 rounded-lg hover:bg-opacity-90 transition-all text-center">
-                                ${finalCtaText}
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- SECTION 3: SUMMARY CARDS (Two side-by-side) -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-                        <!-- Card 1 – Your Situation -->
-                        <div class="bg-white p-6 rounded-xl card-shadow">
-                            <h4 class="text-xl font-bold text-primary-dark mb-4">Your Situation</h4>
-                            <ul class="space-y-3 list-none p-0 m-0">
-                                ${situationHtml}
-                            </ul>
-                        </div>
-                        
-                        <!-- Card 2 – What You’ll Want Help With -->
-                        <div class="bg-white p-6 rounded-xl card-shadow">
-                            <h4 class="text-xl font-bold text-primary-dark mb-4">What You’ll Want Help With</h4>
-                            <ul class="space-y-3 list-none p-0 m-0">
-                                ${helpWithHtml}
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <!-- SECTION 4: PACKAGE OPTIONS (Conditional list/cards) -->
-                    <div class="mb-10">
-                        ${packageOptionsHtml}
-                    </div>
-
-                    <!-- NEW: ADD-ONS WRAPPER -->
-                    <section class="mt-16 space-y-8">
-                        <!-- RECOMMENDED ADD-ONS -->
-                        ${recommendedAddOnsHtml}
-
-                        <!-- ADVANCED TAX PLANNING -->
-                        ${advancedPlanningHtml}
-                    </section>
-
-
-                    <!-- SECTION 5: FINAL CTA -->
-                    <div class="text-center mb-10 pt-4 border-t border-gray-200">
-                        ${hasUpgrades ? `
-                            <p class="text-sm text-green-600 font-semibold mb-3">Selected upgrades will be reviewed before engagement.</p>
-                        ` : ''}
-                        <a href="${finalCtaLink}" class="bg-accent-gold text-white font-bold py-4 px-10 rounded-lg text-xl hover:bg-opacity-90 transition-all card-shadow inline-block mb-3">
-                            ${finalCtaText}
-                            <i class="fa-solid fa-chevron-right ml-2"></i>
-                        </a>
-                        <p class="text-sm text-secondary-grey">${finalMicrocopy}</p> <!-- Use updated finalMicrocopy -->
-
-                        <button onclick="copySummaryToClipboard()" class="text-secondary-grey hover:text-accent-gold text-sm font-semibold transition-colors mt-6 block mx-auto">
-                            <i class="fa-solid fa-copy mr-1"></i> Copy summary
-                        </button>
-                        <p id="copy-message" class="text-sm text-green-600 mt-2 opacity-0 transition-opacity duration-300">Summary copied!</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        // --- UTILITIES ---
-
-        function getAnswerSummary() {
-            let summary = `--- The Lighthouse Guide: Tax Clarity Assessment Summary ---\n`;
-            summary += `Session ID: ${state.sessionId}\n`;
-            summary += `Path Type: ${state.path}\n\n`;
-
-            if (state.results.needsReview) {
-                summary += `Recommendation: Custom Quote Required\n`;
-            } else {
-                summary += `Recommended Tier: ${state.results.recommendedTier}\n`;
-                summary += `Price Estimate: $${state.results.estimatedPrice.toLocaleString()}${state.path === 'Individual' ? ' (One-Time)' : '/mo (Subscription)'}\n`;
-            }
-            summary += `Complexity Score: ${state.results.complexityScore} (${state.results.complexityLevel})\n\n`;
-
-            if (state.addOnsSelected.size > 0) {
-                summary += `Selected Add-ons:\n`;
-                state.addOnsSelected.forEach(id => {
-                    const addon = ADD_ONS_DATA.find(a => a.id === id);
-                    summary += `- ${addon ? addon.name : id}\n`;
-                });
-            }
-            if (state.advancedPlanningSelected) {
-                summary += `\nAdvanced Tax Planning: Selected for Discussion\n`;
-            }
-
-            summary += `\nBreakdown:\n`;
-            state.results.breakdown.forEach(item => {
-                summary += `- ${item}\n`;
-            });
-            summary += `\nSelected Answers:\n`;
-            for (const [key, value] of Object.entries(state.answers)) {
-                if (key !== 'path') {
-                    const displayValue = Array.isArray(value) ? value.join(', ') : value;
-                    summary += `- ${key}: ${displayValue}\n`;
-                }
-            }
-            summary += `\n-----------------------------------------------------\n`;
-            return summary;
-        }
-
-        function copySummaryToClipboard() {
-            const summary = getAnswerSummary();
-            const tempInput = document.createElement('textarea');
-            tempInput.value = summary;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
-
-            const msg = document.getElementById('copy-message');
-            if (msg) {
-                msg.classList.remove('opacity-0');
-                msg.classList.add('opacity-100');
-                setTimeout(() => {
-                    msg.classList.remove('opacity-100');
-                    msg.classList.add('opacity-0');
-                }, 2000);
-            }
-        }
-
-        // --- INITIALIZATION ---
-        window.onload = () => {
-            goToPage('home');
-        };
-
-    </script>
+      }
+      summary += `\n-----------------------------------------------------\n`;
+      return summary;
+    }
+
+    function copySummaryToClipboard() {
+      const summary = getAnswerSummary();
+      const tempInput = document.createElement('textarea');
+      tempInput.value = summary;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+
+      const msg = document.getElementById('copy-message');
+      if (msg) {
+        msg.classList.remove('opacity-0');
+        msg.classList.add('opacity-100');
+        setTimeout(() => {
+          msg.classList.remove('opacity-100');
+          msg.classList.add('opacity-0');
+        }, 2000);
+      }
+    }
+
+    // --- INITIALIZATION ---
+    window.onload = () => {
+      goToPage('home');
+    };
+  </script>
 </body>
 </html>
