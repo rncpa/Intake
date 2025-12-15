@@ -1012,7 +1012,7 @@
       { id: 'cleanup_biz', name: 'Prior-year business returns (1120S / 1065)', benefit: 'Prepare and file missing business returns so future planning is accurate.' },
       { id: 'notice_res', name: 'Notice resolution', benefit: 'Handle IRS or state notices so small issues don’t turn into penalties.' },
       { id: 'multi_state', name: 'Multi-state returns', benefit: 'Prepare additional state filings triggered by work, rentals, or entities.' },
-      { id: 'payroll_comp', name: 'Payroll and quarterly compliance', benefit: 'Calculate and track payroll and estimated payments to avoid underpayment surprises.' },
+      { id: 'quarterly_comp', name: 'Quarterly compliance', benefit: 'Calculate and track estimated payments to avoid underpayment surprises.' },
       { id: 'entity_setup', name: 'Entity setup or restructure', benefit: 'Form or adjust entities so income is reported and taxed correctly.' },
       { id: 're_review', name: 'Real estate activity review', benefit: 'Review rental activity, depreciation, and loss limitations for accuracy.' },
       { id: 'ira_strategy', name: 'Retirement and IRA strategy support', benefit: 'Guidance on contributions, rollovers, and timing before you move funds.' },
@@ -1042,7 +1042,7 @@
           return hasNotices;
         case 'multi_state':
           return numStates >= 2;
-        case 'payroll_comp':
+        case 'quarterly_comp':
           return payrollExists || isBusinessPath;
         case 'entity_setup':
           return numEntities >= 1 || isBusinessPath;
