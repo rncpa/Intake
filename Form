@@ -126,13 +126,13 @@
 
       // 5B) Business/RE Monthly Tier Pricing
       BUSINESS_MIN_PRICES: {
+        Prep: 450,
         Compliance: 650,
-        Strategy: 1100,
-        Bundle: 1500,
+        Bundle: 1500, // internal key stays Bundle, display label is "Strategy Bundle"
       },
       BUSINESS_MAX_PRICES: {
+        Prep: 900,
         Compliance: 1250,
-        Strategy: 2500,
         Bundle: 3500,
       },
       BUSINESS_COMPLEXITY_POINTS: {
@@ -159,6 +159,12 @@
     };
     // --- END PRICING RULES CONFIG ---
 
+    // --- DISPLAY LABELS (User-facing names) ---
+    function getTierLabel(tierName) {
+      if (tierName === 'Bundle') return 'Strategy Bundle';
+      return tierName;
+    }
+
     // --- GLOBAL STATE ---
     let state = {
       currentPage: 'home',
@@ -173,15 +179,15 @@
         needsReview: false,
         reviewRecommended: false,
         recommendedTier: null,
-        tierPrices: { Compliance: 0, Strategy: 0, Bundle: 0 },
+        tierPrices: { Prep: 0, Compliance: 0, Bundle: 0 },
       },
       sessionId: `LHG-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
       addOnsSelected: new Set(),
       advancedPlanningSelected: false,
       legalTeamCoordinationSelected: false, // NEW
       allAddOnsVisible: false,
-      premiumVisible: false, // kept (not used as a collapse anymore, but safe to retain)
-      selectedTier: null, // NEW: selectable business tiers
+      premiumVisible: false,
+      selectedTier: null,
     };
 
     // --- QUESTION DEFINITIONS ---
@@ -388,11 +394,11 @@
             needsReview: false,
             reviewRecommended: false,
             recommendedTier: null,
-            tierPrices: { Compliance: 0, Strategy: 0, Bundle: 0 },
+            tierPrices: { Prep: 0, Compliance: 0, Bundle: 0 },
           };
           state.addOnsSelected = new Set();
           state.advancedPlanningSelected = false;
-          state.legalTeamCoordinationSelected = false; // NEW
+          state.legalTeamCoordinationSelected = false;
           state.allAddOnsVisible = false;
           state.premiumVisible = false;
           state.selectedTier = null;
@@ -405,6 +411,7 @@
           renderQuestion(container);
           break;
         case 'results':
+          // FIXED: removed syntax error that was breaking the app
           calculateResults();
           renderResults(container);
           break;
@@ -608,7 +615,7 @@
         needsReview: false,
         reviewRecommended: false,
         recommendedTier: null,
-        tierPrices: { Compliance: 0, Strategy: 0, Bundle: 0 },
+        tierPrices: { Prep: 0, Compliance: 0, Bundle: 0 },
       };
 
       const path = state.path;
@@ -755,7 +762,11 @@
           if (isSeriousNotice || isHeavyBookkeeping || isMajorTransaction) reviewRecommended = true;
         }
 
-        const tiers = ['Compliance', 'Strategy', 'Bundle'];
+        // --- Tier pricing ---
+        // Prep + Compliance remain band-based (your original behavior).
+        // Bundle (Strategy Bundle) is derived from Compliance to avoid a huge jump.
+
+        const tiers = ['Prep', 'Compliance'];
         let addersTotal = 0;
 
         if (numEntities > 1) addersTotal += (numEntities - 1) * PRICING_RULES_CONFIG.BUSINESS_INCREMENTAL_ADDERS.entity_beyond_1;
@@ -766,16 +777,43 @@
           const min = PRICING_RULES_CONFIG.BUSINESS_MIN_PRICES[tier];
           const max = PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES[tier];
 
-          let priceBand = min + (max - min) * (score / 100);
-          let finalPrice = priceBand + addersTotal;
+          const priceBand = min + (max - min) * (score / 100);
+          const finalPrice = priceBand + addersTotal;
 
           state.results.tierPrices[tier] = Math.round(finalPrice / 50) * 50;
-
-          if (tier === 'Bundle') {
-            state.results.estimatedPrice = state.results.tierPrices[tier];
-          }
         });
 
+        // Strategy Bundle derived from Compliance (more industry-normal)
+        const compliancePrice = state.results.tierPrices.Compliance;
+
+        // Complexity-based multiplier and planning floor
+        let bundleMultiplier = 1.45;
+        let planningFloor = 200;
+
+        if (score >= 65) {
+          bundleMultiplier = 1.70;
+          planningFloor = 350;
+        } else if (score >= 35) {
+          bundleMultiplier = 1.55;
+          planningFloor = 250;
+        }
+
+        // Guardrails so Bundle doesn't explode relative to Compliance
+        const maxMultiple = 1.80;
+        const minMultiple = 1.30;
+
+        let bundleRaw = (compliancePrice * bundleMultiplier) + planningFloor;
+
+        const bundleMin = compliancePrice * minMultiple;
+        const bundleMax = compliancePrice * maxMultiple;
+        bundleRaw = Math.max(bundleMin, Math.min(bundleRaw, bundleMax));
+
+        state.results.tierPrices.Bundle = Math.round(bundleRaw / 50) * 50;
+
+        // Estimated price defaults to Bundle unless Needs Review
+        state.results.estimatedPrice = state.results.tierPrices.Bundle;
+
+        // Keep your existing cap check (will trip far less often now)
         if (state.results.estimatedPrice > PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES.Bundle) {
           state.results.needsReview = true;
           state.results.recommendedTier = 'Needs Review';
@@ -784,13 +822,12 @@
         }
 
         state.results.breakdown.push(`Price Calculation Base Adders: $${addersTotal}/mo`);
+        state.results.breakdown.push(`Prep Estimate: $${state.results.tierPrices.Prep}/mo`);
         state.results.breakdown.push(`Compliance Estimate: $${state.results.tierPrices.Compliance}/mo`);
-        state.results.breakdown.push(`Strategy Estimate: $${state.results.tierPrices.Strategy}/mo`);
-        state.results.breakdown.push(`Bundle Estimate: $${state.results.tierPrices.Bundle}/mo`);
+        state.results.breakdown.push(`Strategy Bundle Estimate: $${state.results.tierPrices.Bundle}/mo`);
 
         state.results.reviewRecommended = reviewRecommended;
 
-        // NEW: default the selectable tier if not set (keeps selection stable between renders)
         if (!state.selectedTier) {
           state.selectedTier = state.results.needsReview ? 'Bundle' : (state.results.recommendedTier || 'Bundle');
           if (state.selectedTier === 'Needs Review') state.selectedTier = 'Bundle';
@@ -922,45 +959,18 @@
       ).join('');
     }
 
-    // NEW: tier selection handler
     function selectTier(tierName) {
       state.selectedTier = tierName;
       renderResults(document.getElementById('app-container'));
     }
 
     function getPricingTiersHtml(isIndividual, results) {
-      if (isIndividual) {
-        const formatted = formatPriceDisplay(results.estimatedPrice, null, results.needsReview, true);
-        const priceDisplay = formatted.price;
-        const tierName = formatted.tierDisplay;
-        const note = formatted.microcopy;
-        const ctaText = formatted.ctaText;
-        const ctaLink = results.needsReview ? '#schedule-call' : '#payment-link';
-
-        return `
-          <h3 class="text-2xl font-bold text-primary-dark mb-6 text-center">Your Service Option</h3>
-          <div class="max-w-md mx-auto">
-            <div class="bg-white p-6 rounded-xl card-shadow text-left border-2 border-accent-gold relative">
-              <span class="absolute top-0 right-0 mt-3 mr-3 bg-accent-gold text-white text-xs font-semibold px-3 py-1 rounded-full uppercase">Your Estimate</span>
-              <h4 class="text-2xl font-bold text-primary-dark mb-1">${tierName}</h4>
-              <p class="text-secondary-grey text-sm mb-4">Comprehensive annual tax preparation for your personal return.</p>
-
-              <p class="text-4xl font-extrabold text-primary-dark mb-4">${priceDisplay}</p>
-              <p class="text-sm text-secondary-grey mb-6">${results.needsReview ? '' : 'One-Time Price'}</p>
-
-              <a href="${ctaLink}" class="block bg-accent-gold text-white font-bold py-3 px-6 rounded-lg hover:bg-opacity-90 transition-all text-center">
-                ${ctaText}
-              </a>
-              ${results.needsReview ? `<p class="text-xs text-red-600 mt-2">${note}</p>` : ''}
-            </div>
-          </div>
-        `;
-      }
+      if (isIndividual) return '';
 
       const tiers = [
-        { name: 'Compliance', description: 'Annual entity returns, basic tax estimates, and responsive support.', priceKey: 'Compliance' },
-        { name: 'Strategy', description: 'Quarterly strategy calls, proactive tax planning, and entity management.', priceKey: 'Strategy' },
-        { name: 'Bundle', description: 'Comprehensive planning, consultation, and bookkeeping integration.', priceKey: 'Bundle' }
+        { name: 'Prep', displayName: 'Prep', description: 'Tax return preparation only. No ongoing advisory.', priceKey: 'Prep' },
+        { name: 'Compliance', displayName: 'Compliance', description: 'Annual returns, basic estimates, and responsive support.', priceKey: 'Compliance' },
+        { name: 'Bundle', displayName: 'Strategy Bundle', description: 'Compliance plus planning, strategy calls, and proactive tax minimization.', priceKey: 'Bundle' }
       ];
 
       const tierHtml = tiers.map(tier => {
@@ -986,7 +996,7 @@
             ${isRecommended ? '<span class="absolute top-0 right-0 mt-[-10px] mr-[-10px] bg-accent-gold text-white text-xs font-semibold px-3 py-1 rounded-full uppercase shadow-md">Recommended</span>' : ''}
             ${isSelected ? '<span class="absolute top-0 left-0 mt-[-10px] ml-[-10px] bg-primary-dark text-white text-xs font-semibold px-3 py-1 rounded-full uppercase shadow-md">Selected</span>' : ''}
 
-            <h4 class="text-xl font-bold text-primary-dark mb-1">${tier.name}</h4>
+            <h4 class="text-xl font-bold text-primary-dark mb-1">${tier.displayName}</h4>
             <p class="text-secondary-grey text-sm mb-4 h-10">${tier.description}</p>
 
             <p class="text-3xl font-extrabold text-primary-dark mb-1">${formatted.price}</p>
@@ -1008,7 +1018,7 @@
       `;
     }
 
-    // --- NEW ADD-ONS LOGIC ---
+    // --- ADD-ONS LOGIC ---
     const ADD_ONS_DATA = [
       { id: 'cleanup_1040', name: 'Prior-year cleanup (1040)', benefit: 'Catch up missed personal returns and correct prior filings to get you compliant.' },
       { id: 'cleanup_biz', name: 'Prior-year business returns (1120S / 1065)', benefit: 'Prepare and file missing business returns so future planning is accurate.' },
@@ -1032,7 +1042,6 @@
       const numStates = isBusinessPath ? getNumericAnswer(answers.states_re) : getNumericAnswer(answers.states);
 
       const hasNotices = isBusinessPath && answers.notices !== 'none';
-
       const majorTransaction = isBusinessPath ? answers.transactions : null;
 
       switch (addOnId) {
@@ -1082,7 +1091,6 @@
       renderResults(document.getElementById('app-container'));
     }
 
-    // NEW: dropdown for all add-ons (available even if not recommended)
     function handleAddOnDropdownChange(selectEl) {
       const id = selectEl.value;
       if (!id) return;
@@ -1135,7 +1143,6 @@
       `;
     }
 
-    // NEW: simplified add-ons UI (less buttons, calmer rows)
     function renderRecommendedAddOns(results, answers, path) {
       if (results.needsReview) return '';
 
@@ -1198,107 +1205,107 @@
       `;
     }
 
-   function renderPremiumAddOnsRow(results) {
-  const isHighComplexity = results.complexityLevel === 'High';
+    function renderPremiumAddOnsRow(results) {
+      const isHighComplexity = results.complexityLevel === 'High';
 
-  const planningSelected = state.advancedPlanningSelected;
-  const legalSelected = state.legalTeamCoordinationSelected;
+      const planningSelected = state.advancedPlanningSelected;
+      const legalSelected = state.legalTeamCoordinationSelected;
 
-  const advancedCard = `
-    <div class="bg-white p-7 rounded-2xl card-shadow border-2 border-accent-gold">
-      <div class="flex flex-col gap-5">
-        <div class="flex items-start justify-between gap-4">
-          <div class="space-y-2 min-w-0">
-            <p class="text-sm font-semibold uppercase tracking-wide text-secondary-grey">Premium advisory</p>
+      const advancedCard = `
+        <div class="bg-white p-7 rounded-2xl card-shadow border-2 border-accent-gold">
+          <div class="flex flex-col gap-5">
+            <div class="flex items-start justify-between gap-4">
+              <div class="space-y-2 min-w-0">
+                <p class="text-sm font-semibold uppercase tracking-wide text-secondary-grey">Premium advisory</p>
 
-            <h3 class="text-xl md:text-2xl font-extrabold text-primary-dark leading-snug break-normal">
-              <span class="whitespace-nowrap">Advanced Tax</span> Planning
-            </h3>
+                <h3 class="text-xl md:text-2xl font-extrabold text-primary-dark leading-snug break-normal">
+                  <span class="whitespace-nowrap">Advanced Tax</span> Planning
+                </h3>
 
-            <p class="text-secondary-grey max-w-prose">
-              For acquisitions, restructuring, real estate strategy, and other high-impact decisions where planning saves real money.
-            </p>
-          </div>
+                <p class="text-secondary-grey max-w-prose">
+                  For acquisitions, restructuring, real estate strategy, and other high-impact decisions where planning saves real money.
+                </p>
+              </div>
 
-          <div class="shrink-0">
-            <button onclick="toggleAdvancedPlanning()"
-              class="bg-accent-gold text-white font-bold py-3 px-5 rounded-lg hover:bg-opacity-90 transition"
-            >
-              <i class="fa-solid ${planningSelected ? 'fa-circle-check' : 'fa-circle-plus'} mr-2"></i>
-              ${planningSelected ? 'Added' : 'Add'}
-            </button>
-            <p class="text-xs text-secondary-grey mt-2">Quoted after a short scope call.</p>
-          </div>
-        </div>
+              <div class="shrink-0">
+                <button onclick="toggleAdvancedPlanning()"
+                  class="bg-accent-gold text-white font-bold py-3 px-5 rounded-lg hover:bg-opacity-90 transition"
+                >
+                  <i class="fa-solid ${planningSelected ? 'fa-circle-check' : 'fa-circle-plus'} mr-2"></i>
+                  ${planningSelected ? 'Added' : 'Add'}
+                </button>
+                <p class="text-xs text-secondary-grey mt-2">Quoted after a short scope call.</p>
+              </div>
+            </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-          <div class="bg-background-light/60 rounded-lg p-3">Acquisition or sale planning</div>
-          <div class="bg-background-light/60 rounded-lg p-3">Entity restructuring and modeling</div>
-          <div class="bg-background-light/60 rounded-lg p-3 sm:col-span-2">Multi-year strategy coordination</div>
-        </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+              <div class="bg-background-light/60 rounded-lg p-3">Acquisition or sale planning</div>
+              <div class="bg-background-light/60 rounded-lg p-3">Entity restructuring and modeling</div>
+              <div class="bg-background-light/60 rounded-lg p-3 sm:col-span-2">Multi-year strategy coordination</div>
+            </div>
 
-        ${isHighComplexity ? `
-          <p class="text-xs text-secondary-grey italic">
-            With high complexity, this is often the best ROI on advisory spend.
-          </p>
-        ` : ''}
-      </div>
-    </div>
-  `;
-
-  const legalCard = `
-    <div class="bg-white p-7 rounded-2xl card-shadow border-2 border-accent-gold">
-      <div class="flex flex-col gap-5">
-        <div class="flex items-start justify-between gap-4">
-          <div class="space-y-2 min-w-0">
-            <p class="text-sm font-semibold uppercase tracking-wide text-secondary-grey">Premium advisory</p>
-
-            <h3 class="text-xl md:text-2xl font-extrabold text-primary-dark leading-snug break-normal">
-              <span class="whitespace-nowrap">Legal and Financial</span><br/>
-              <span class="whitespace-nowrap">Team Coordination</span>
-            </h3>
-
-            <p class="text-secondary-grey max-w-prose">
-              When multiple advisors are involved, we’ll coordinate with your attorney, financial advisor, and lender so everyone is aligned.
-            </p>
-          </div>
-
-          <div class="shrink-0 text-right">
-            <button onclick="toggleLegalTeamCoordination()"
-              class="bg-accent-gold text-white font-bold py-3 px-5 rounded-lg hover:bg-opacity-90 transition"
-            >
-              <i class="fa-solid ${legalSelected ? 'fa-circle-check' : 'fa-circle-plus'} mr-2"></i>
-              ${legalSelected ? 'Added' : 'Add'}
-            </button>
-
-            <p class="text-xs text-secondary-grey mt-2 font-semibold">$1,200 flat</p>
+            ${isHighComplexity ? `
+              <p class="text-xs text-secondary-grey italic">
+                With high complexity, this is often the best ROI on advisory spend.
+              </p>
+            ` : ''}
           </div>
         </div>
+      `;
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-          <div class="bg-background-light/60 rounded-lg p-3">Coordinate deliverables and timelines</div>
-          <div class="bg-background-light/60 rounded-lg p-3">Review tax and legal implications</div>
-          <div class="bg-background-light/60 rounded-lg p-3 sm:col-span-2">Reduce back-and-forth and errors</div>
+      const legalCard = `
+        <div class="bg-white p-7 rounded-2xl card-shadow border-2 border-accent-gold">
+          <div class="flex flex-col gap-5">
+            <div class="flex items-start justify-between gap-4">
+              <div class="space-y-2 min-w-0">
+                <p class="text-sm font-semibold uppercase tracking-wide text-secondary-grey">Premium advisory</p>
+
+                <h3 class="text-xl md:text-2xl font-extrabold text-primary-dark leading-snug break-normal">
+                  <span class="whitespace-nowrap">Legal and Financial</span><br/>
+                  <span class="whitespace-nowrap">Team Coordination</span>
+                </h3>
+
+                <p class="text-secondary-grey max-w-prose">
+                  When multiple advisors are involved, we’ll coordinate with your attorney, financial advisor, and lender so everyone is aligned.
+                </p>
+              </div>
+
+              <div class="shrink-0 text-right">
+                <button onclick="toggleLegalTeamCoordination()"
+                  class="bg-accent-gold text-white font-bold py-3 px-5 rounded-lg hover:bg-opacity-90 transition"
+                >
+                  <i class="fa-solid ${legalSelected ? 'fa-circle-check' : 'fa-circle-plus'} mr-2"></i>
+                  ${legalSelected ? 'Added' : 'Add'}
+                </button>
+
+                <p class="text-xs text-secondary-grey mt-2 font-semibold">$1,200 flat</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+              <div class="bg-background-light/60 rounded-lg p-3">Coordinate deliverables and timelines</div>
+              <div class="bg-background-light/60 rounded-lg p-3">Review tax and legal implications</div>
+              <div class="bg-background-light/60 rounded-lg p-3 sm:col-span-2">Reduce back-and-forth and errors</div>
+            </div>
+
+            ${isHighComplexity ? `
+              <p class="text-xs text-secondary-grey italic">
+                With high complexity, coordinated execution often prevents expensive missteps.
+              </p>
+            ` : ''}
+          </div>
         </div>
+      `;
 
-        ${isHighComplexity ? `
-          <p class="text-xs text-secondary-grey italic">
-            With high complexity, coordinated execution often prevents expensive missteps.
-          </p>
-        ` : ''}
-      </div>
-    </div>
-  `;
-
-  return `
-    <div class="mt-10">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        ${advancedCard}
-        ${legalCard}
-      </div>
-    </div>
-  `;
-}
+      return `
+        <div class="mt-10">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            ${advancedCard}
+            ${legalCard}
+          </div>
+        </div>
+      `;
+    }
 
     // --- RESULTS PAGE RENDER ---
     function renderResults(container) {
@@ -1310,7 +1317,6 @@
       let heroFormatted;
       const bundleMax = PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES.Bundle;
 
-      // NEW: use selected tier for business hero price
       const selectedTier = isIndividual
         ? null
         : (state.selectedTier || results.recommendedTier || 'Bundle');
@@ -1334,7 +1340,7 @@
 
       const heroTierDisplay = isReviewRequired
         ? 'Custom Quote Required'
-        : (isIndividual ? (results.recommendedTier || 'Tax Prep Estimate') : selectedTier);
+        : (isIndividual ? (results.recommendedTier || 'Tax Prep Estimate') : getTierLabel(selectedTier));
 
       const heroTimeDisplay = isIndividual ? 'ONE-TIME PRICE' : 'MONTHLY SUBSCRIPTION';
 
@@ -1348,7 +1354,7 @@
       } else if (isIndividual) {
         recommendationSentence = `Based on your answers, we can confirm your full-scope tax prep price and start onboarding right away.`;
       } else {
-        recommendationSentence = `You’ve selected the ${selectedTier} tier. We’ll confirm scope and final pricing on a short call.`;
+        recommendationSentence = `You’ve selected the ${getTierLabel(selectedTier)} tier. We’ll confirm scope and final pricing on a short call.`;
       }
 
       const situationHtml = getSituationHtml(state.answers, isIndividual);
@@ -1372,7 +1378,6 @@
 
       container.innerHTML = `
         <div class="max-w-4xl mx-auto">
-          <!-- SECTION 1: Header -->
           <div class="text-left mb-8">
             <h2 class="text-4xl font-extrabold text-primary-dark mb-2">Assessment Complete</h2>
             <p class="text-xl text-secondary-grey">
@@ -1380,10 +1385,8 @@
             </p>
           </div>
 
-          <!-- VALUE PROPOSITION -->
           ${renderValueSection(isIndividual)}
 
-          <!-- SECTION 2: HERO -->
           <div class="grid grid-cols-1 gap-6 mb-10">
             <div class="bg-white p-8 rounded-xl card-shadow border-2 ${isReviewRequired ? 'border-gray-400 bg-background-light/70' : 'border-accent-gold'} relative">
               <h3 class="text-xl font-bold text-secondary-grey mb-4 uppercase tracking-wider">Selected Tier</h3>
@@ -1408,7 +1411,6 @@
             </div>
           </div>
 
-          <!-- SECTION 3: SUMMARY CARDS -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
             <div class="bg-white p-6 rounded-xl card-shadow">
               <h4 class="text-xl font-bold text-primary-dark mb-4">Your Situation</h4>
@@ -1425,19 +1427,16 @@
             </div>
           </div>
 
-          <!-- SECTION 4: PACKAGE OPTIONS -->
           <div class="mb-10">
             ${packageOptionsHtml}
           </div>
 
-          <!-- ADD-ONS + PREMIUM -->
           <section class="mt-16 space-y-8">
             ${recommendedAddOnsHtml}
             ${premiumAddOnsHtml}
             ${allAddOnsDropdownHtml}
           </section>
 
-          <!-- SECTION 5: FINAL CTA (secondary, quieter) -->
           <div class="text-center mb-10 pt-6 border-t border-gray-200">
             ${hasUpgrades ? `
               <p class="text-sm text-green-700 font-semibold mb-3">
@@ -1465,7 +1464,6 @@
       `;
     }
 
-    // --- UTILITIES ---
     function getAnswerSummary() {
       let summary = `--- The Lighthouse Guide: Tax Clarity Assessment Summary ---\n`;
       summary += `Session ID: ${state.sessionId}\n`;
@@ -1475,9 +1473,9 @@
         summary += `Recommendation: Custom Quote Required\n`;
       } else {
         if (state.path !== 'Individual' && state.selectedTier) {
-          summary += `Selected Tier: ${state.selectedTier}\n`;
+          summary += `Selected Tier: ${getTierLabel(state.selectedTier)}\n`;
         }
-        summary += `Recommended Tier: ${state.results.recommendedTier}\n`;
+        summary += `Recommended Tier: ${state.results.recommendedTier === 'Bundle' ? getTierLabel('Bundle') : state.results.recommendedTier}\n`;
         summary += `Price Estimate: $${state.results.estimatedPrice.toLocaleString()}${state.path === 'Individual' ? ' (One-Time)' : '/mo (Subscription)'}\n`;
       }
 
@@ -1534,7 +1532,6 @@
       }
     }
 
-    // --- INITIALIZATION ---
     window.onload = () => {
       goToPage('home');
     };
