@@ -411,7 +411,6 @@
           renderQuestion(container);
           break;
         case 'results':
-          // FIXED: removed syntax error that was breaking the app
           calculateResults();
           renderResults(container);
           break;
@@ -763,8 +762,8 @@
         }
 
         // --- Tier pricing ---
-        // Prep + Compliance remain band-based (your original behavior).
-        // Bundle (Strategy Bundle) is derived from Compliance to avoid a huge jump.
+        // Prep + Compliance remain band-based.
+        // Bundle (Strategy Bundle) is derived from Compliance.
 
         const tiers = ['Prep', 'Compliance'];
         let addersTotal = 0;
@@ -783,10 +782,9 @@
           state.results.tierPrices[tier] = Math.round(finalPrice / 50) * 50;
         });
 
-        // Strategy Bundle derived from Compliance (more industry-normal)
+        // Strategy Bundle derived from Compliance
         const compliancePrice = state.results.tierPrices.Compliance;
 
-        // Complexity-based multiplier and planning floor
         let bundleMultiplier = 1.45;
         let planningFloor = 200;
 
@@ -798,7 +796,6 @@
           planningFloor = 250;
         }
 
-        // Guardrails so Bundle doesn't explode relative to Compliance
         const maxMultiple = 1.80;
         const minMultiple = 1.30;
 
@@ -810,10 +807,8 @@
 
         state.results.tierPrices.Bundle = Math.round(bundleRaw / 50) * 50;
 
-        // Estimated price defaults to Bundle unless Needs Review
         state.results.estimatedPrice = state.results.tierPrices.Bundle;
 
-        // Keep your existing cap check (will trip far less often now)
         if (state.results.estimatedPrice > PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES.Bundle) {
           state.results.needsReview = true;
           state.results.recommendedTier = 'Needs Review';
@@ -879,7 +874,6 @@
 
       return {
         price: `Estimated $${formattedPrice}/mo`,
-        microcopy: "Estimated / mo",
         tierDisplay: "Estimated",
         ctaText: 'Discuss Scope'
       };
@@ -969,8 +963,8 @@
 
       const tiers = [
         { name: 'Prep', displayName: 'Prep', description: 'Tax return preparation only. No ongoing advisory.', priceKey: 'Prep' },
-        { name: 'Compliance', displayName: 'Compliance', description: 'Annual returns, basic estimates, and responsive support.', priceKey: 'Compliance' },
-        { name: 'Bundle', displayName: 'Strategy Bundle', description: 'Compliance plus planning, strategy calls, and proactive tax minimization.', priceKey: 'Bundle' }
+        { name: 'Compliance', displayName: 'Compliance', description: 'Annual returns, quarterly estimates, and responsive support.', priceKey: 'Compliance' },
+        { name: 'Bundle', displayName: 'Strategy Bundle', description: 'Sound filing and proactive tax minimization.', priceKey: 'Bundle' }
       ];
 
       const tierHtml = tiers.map(tier => {
@@ -1000,22 +994,40 @@
             <p class="text-secondary-grey text-sm mb-4 h-10">${tier.description}</p>
 
             <p class="text-3xl font-extrabold text-primary-dark mb-1">${formatted.price}</p>
-            <p class="text-sm text-secondary-grey mb-3">${requiresReviewDisplay ? 'Estimate shown, scope call required' : 'Estimated / mo'}</p>
+            <p class="text-sm text-secondary-grey mb-3">${requiresReviewDisplay ? 'Estimate shown, scope call required' : ''}</p>
 
-            <p class="text-xs text-secondary-grey leading-relaxed">
-              Click to select a tier. We’ll confirm exactly what’s included on a short scope call.
-            </p>
+            
 
             ${requiresReviewDisplay ? `<p class="text-xs text-red-600 mt-3">${formatted.microcopy}</p>` : ''}
           </div>
         `;
       }).join('');
 
-      return `
-        <h3 class="text-2xl font-bold text-primary-dark mb-2 text-center">Service Tiers</h3>
-        <p class="text-secondary-grey text-center mb-6">Click a tier to select it.</p>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">${tierHtml}</div>
-      `;
+     return `
+  <h3 class="text-2xl font-bold text-primary-dark mb-2 text-center">Service Tiers</h3>
+
+  <p class="text-secondary-grey text-center mb-2">
+    Click to select a tier. We’ll confirm exactly what’s included on a short scope call.
+  </p>
+
+  <div class="text-center mb-6">
+    <a
+      href="#service-tiers-details"
+      class="inline-flex items-center gap-2 text-sm font-semibold text-accent-gold hover:underline"
+    >
+      <i class="fa-solid fa-circle-info"></i>
+      Click to learn more about our service tiers
+    </a>
+    <p class="text-xs text-secondary-grey mt-1">
+      What’s included, how they differ, and when each makes sense.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    ${tierHtml}
+  </div>
+`;
+
     }
 
     // --- ADD-ONS LOGIC ---
@@ -1344,10 +1356,6 @@
 
       const heroTimeDisplay = isIndividual ? 'ONE-TIME PRICE' : 'MONTHLY SUBSCRIPTION';
 
-      const reviewBannerClasses = isReviewRequired
-        ? 'border-t border-b border-gray-200 bg-background-light text-primary-dark p-4 mb-6 rounded-md text-left'
-        : 'border border-gray-200 bg-white text-primary-dark p-4 mb-6 rounded-md text-left';
-
       let recommendationSentence;
       if (isReviewRequired) {
         recommendationSentence = `Your situation needs a brief scope call to confirm the final pricing and the right approach.`;
@@ -1376,6 +1384,32 @@
       const premiumAddOnsHtml = renderPremiumAddOnsRow(results);
       const allAddOnsDropdownHtml = renderAllAddOnsDropdown();
 
+      // New: lightweight estimate card for Individual path, since Service Tiers aren't shown there.
+      const individualEstimateCard = isIndividual ? `
+        <div class="grid grid-cols-1 gap-6 mb-10">
+          <div class="bg-white p-7 rounded-xl card-shadow border border-gray-200">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
+              <div class="space-y-2">
+                <h3 class="text-xl font-bold text-primary-dark">Your estimate</h3>
+                <p class="text-sm text-secondary-grey font-semibold">${heroTimeDisplay}</p>
+
+                <p class="text-3xl font-extrabold text-primary-dark leading-none">${heroTierDisplay}</p>
+                <p class="text-4xl font-extrabold text-accent-gold">${heroPriceDisplay}</p>
+
+                <p class="text-sm text-primary-dark mt-2">${recommendationSentence}</p>
+              </div>
+
+              <div class="shrink-0">
+                <a href="${finalCtaLink}" class="block bg-accent-gold text-white font-bold py-3 px-6 rounded-lg hover:bg-opacity-90 transition-all text-center">
+                  ${finalCtaText}
+                </a>
+                <p class="text-sm text-secondary-grey mt-3">${finalMicrocopy}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      ` : '';
+
       container.innerHTML = `
         <div class="max-w-4xl mx-auto">
           <div class="text-left mb-8">
@@ -1387,29 +1421,12 @@
 
           ${renderValueSection(isIndividual)}
 
-          <div class="grid grid-cols-1 gap-6 mb-10">
-            <div class="bg-white p-8 rounded-xl card-shadow border-2 ${isReviewRequired ? 'border-gray-400 bg-background-light/70' : 'border-accent-gold'} relative">
-              <h3 class="text-xl font-bold text-secondary-grey mb-4 uppercase tracking-wider">Selected Tier</h3>
-
-              <p class="text-5xl font-extrabold text-primary-dark mb-1 leading-none">${heroTierDisplay}</p>
-              <p class="text-4xl font-extrabold text-accent-gold mb-4">${heroPriceDisplay}</p>
-              <p class="text-sm text-secondary-grey mb-6 font-semibold">${heroTimeDisplay}</p>
-
-              ${isReviewRequired || results.reviewRecommended ? `
-                <div class="${reviewBannerClasses}">
-                  <p class="font-semibold text-sm">${isReviewRequired ? 'Next Step:' : 'Suggested Next Step:'}</p>
-                  <p class="text-xs text-secondary-grey mt-1">${heroFormatted.microcopy}</p>
-                </div>
-              ` : ''}
-
-              <p class="text-md text-primary-dark mb-8">${recommendationSentence}</p>
-
-              <a href="${finalCtaLink}" class="block bg-accent-gold text-white font-bold py-3 px-6 rounded-lg hover:bg-opacity-90 transition-all text-center">
-                ${finalCtaText}
-              </a>
-              <p class="text-sm text-secondary-grey mt-3">${finalMicrocopy}</p>
+          <!-- MOVED: Service Tiers now appear here (replacing the old Selected Tier hero box) -->
+          ${isIndividual ? individualEstimateCard : `
+            <div class="mb-10">
+              ${packageOptionsHtml}
             </div>
-          </div>
+          `}
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
             <div class="bg-white p-6 rounded-xl card-shadow">
@@ -1425,10 +1442,6 @@
                 ${helpWithHtml}
               </ul>
             </div>
-          </div>
-
-          <div class="mb-10">
-            ${packageOptionsHtml}
           </div>
 
           <section class="mt-16 space-y-8">
