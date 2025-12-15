@@ -1023,12 +1023,13 @@
     function checkAddOnRecommendation(addOnId, answers, path) {
       const isBusinessPath = path !== 'Individual';
 
+      case 'quarterly_comp':
+  return true;
       const numEntities = isBusinessPath ? getNumericAnswer(answers.entities) : 0;
       const numRentals = isBusinessPath ? getNumericAnswer(answers.rentals_re) : getNumericAnswer(answers.rentals);
       const isMissingBizReturns = isBusinessPath && answers.cleanup === 'missing business returns';
       const numPriorYears = isBusinessPath ? getNumericAnswer(answers.cleanup) : getNumericAnswer(answers.unfiled_returns);
       const numStates = isBusinessPath ? getNumericAnswer(answers.states_re) : getNumericAnswer(answers.states);
-      const payrollExists = isBusinessPath && answers.payroll !== 'none';
       const hasNotices = isBusinessPath && answers.notices !== 'none';
 
       const majorTransaction = isBusinessPath ? answers.transactions : null;
