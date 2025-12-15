@@ -1028,7 +1028,7 @@
       const isMissingBizReturns = isBusinessPath && answers.cleanup === 'missing business returns';
       const numPriorYears = isBusinessPath ? getNumericAnswer(answers.cleanup) : getNumericAnswer(answers.unfiled_returns);
       const numStates = isBusinessPath ? getNumericAnswer(answers.states_re) : getNumericAnswer(answers.states);
-      const payrollExists = isBusinessPath && answers.payroll !== 'none';
+      
       const hasNotices = isBusinessPath && answers.notices !== 'none';
 
       const majorTransaction = isBusinessPath ? answers.transactions : null;
@@ -1043,7 +1043,7 @@
         case 'multi_state':
           return numStates >= 2;
         case 'quarterly_comp':
-          return payrollExists || isBusinessPath;
+          return true;
         case 'entity_setup':
           return numEntities >= 1 || isBusinessPath;
         case 're_review':
