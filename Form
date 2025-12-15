@@ -178,6 +178,7 @@
       sessionId: `LHG-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
       addOnsSelected: new Set(),
       advancedPlanningSelected: false,
+      legalTeamCoordinationSelected: false, // NEW
       allAddOnsVisible: false,
       premiumVisible: false, // kept (not used as a collapse anymore, but safe to retain)
       selectedTier: null, // NEW: selectable business tiers
@@ -391,6 +392,7 @@
           };
           state.addOnsSelected = new Set();
           state.advancedPlanningSelected = false;
+          state.legalTeamCoordinationSelected = false; // NEW
           state.allAddOnsVisible = false;
           state.premiumVisible = false;
           state.selectedTier = null;
@@ -1028,7 +1030,7 @@
       const isMissingBizReturns = isBusinessPath && answers.cleanup === 'missing business returns';
       const numPriorYears = isBusinessPath ? getNumericAnswer(answers.cleanup) : getNumericAnswer(answers.unfiled_returns);
       const numStates = isBusinessPath ? getNumericAnswer(answers.states_re) : getNumericAnswer(answers.states);
-      
+
       const hasNotices = isBusinessPath && answers.notices !== 'none';
 
       const majorTransaction = isBusinessPath ? answers.transactions : null;
@@ -1067,6 +1069,11 @@
 
     function toggleAdvancedPlanning() {
       state.advancedPlanningSelected = !state.advancedPlanningSelected;
+      renderResults(document.getElementById('app-container'));
+    }
+
+    function toggleLegalTeamCoordination() {
+      state.legalTeamCoordinationSelected = !state.legalTeamCoordinationSelected;
       renderResults(document.getElementById('app-container'));
     }
 
@@ -1130,7 +1137,7 @@
 
     // NEW: simplified add-ons UI (less buttons, calmer rows)
     function renderRecommendedAddOns(results, answers, path) {
-      if (path === 'Individual' || results.needsReview) return '';
+      if (results.needsReview) return '';
 
       const allAddOns = ADD_ONS_DATA.filter(addon => checkAddOnRecommendation(addon.id, answers, path));
       if (allAddOns.length === 0) return '';
@@ -1191,49 +1198,107 @@
       `;
     }
 
-    // UPDATED: make Advanced Tax Planning much more prominent (no collapse)
-    function renderAdvancedTaxPlanning(results) {
-      const isHighComplexity = results.complexityLevel === 'High';
-      const isSelected = state.advancedPlanningSelected;
+   function renderPremiumAddOnsRow(results) {
+  const isHighComplexity = results.complexityLevel === 'High';
 
-      return `
-        <div class="mt-10">
-          <div class="bg-white p-7 rounded-2xl card-shadow border-2 border-accent-gold">
-            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-              <div class="space-y-2">
-                <p class="text-sm font-semibold uppercase tracking-wide text-secondary-grey">Premium advisory</p>
-                <h3 class="text-3xl font-extrabold text-primary-dark">Advanced Tax Planning</h3>
-                <p class="text-secondary-grey max-w-prose">
-                  For acquisitions, restructuring, real estate strategy, and other high-impact decisions where planning saves real money.
-                </p>
+  const planningSelected = state.advancedPlanningSelected;
+  const legalSelected = state.legalTeamCoordinationSelected;
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 text-sm">
-                  <div class="bg-background-light/60 rounded-lg p-3">Acquisition or sale planning</div>
-                  <div class="bg-background-light/60 rounded-lg p-3">Entity restructuring and modeling</div>
-                  <div class="bg-background-light/60 rounded-lg p-3">Multi-year strategy coordination</div>
-                </div>
+  const advancedCard = `
+    <div class="bg-white p-7 rounded-2xl card-shadow border-2 border-accent-gold">
+      <div class="flex flex-col gap-5">
+        <div class="flex items-start justify-between gap-4">
+          <div class="space-y-2 min-w-0">
+            <p class="text-sm font-semibold uppercase tracking-wide text-secondary-grey">Premium advisory</p>
 
-                ${isHighComplexity ? `
-                  <p class="text-xs text-secondary-grey italic pt-2">
-                    With high complexity, this is often the best ROI on advisory spend.
-                  </p>
-                ` : ''}
-              </div>
+            <h3 class="text-xl md:text-2xl font-extrabold text-primary-dark leading-snug break-normal">
+              <span class="whitespace-nowrap">Advanced Tax</span> Planning
+            </h3>
 
-              <div class="shrink-0">
-                <button onclick="toggleAdvancedPlanning()"
-                  class="bg-accent-gold text-white font-bold py-3 px-6 rounded-lg hover:bg-opacity-90 transition w-full md:w-auto"
-                >
-                  <i class="fa-solid ${isSelected ? 'fa-circle-check' : 'fa-circle-plus'} mr-2"></i>
-                  ${isSelected ? 'Added to scope' : 'Add to scope'}
-                </button>
-                <p class="text-xs text-secondary-grey mt-2">Quoted after a short scope call.</p>
-              </div>
-            </div>
+            <p class="text-secondary-grey max-w-prose">
+              For acquisitions, restructuring, real estate strategy, and other high-impact decisions where planning saves real money.
+            </p>
+          </div>
+
+          <div class="shrink-0">
+            <button onclick="toggleAdvancedPlanning()"
+              class="bg-accent-gold text-white font-bold py-3 px-5 rounded-lg hover:bg-opacity-90 transition"
+            >
+              <i class="fa-solid ${planningSelected ? 'fa-circle-check' : 'fa-circle-plus'} mr-2"></i>
+              ${planningSelected ? 'Added' : 'Add'}
+            </button>
+            <p class="text-xs text-secondary-grey mt-2">Quoted after a short scope call.</p>
           </div>
         </div>
-      `;
-    }
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+          <div class="bg-background-light/60 rounded-lg p-3">Acquisition or sale planning</div>
+          <div class="bg-background-light/60 rounded-lg p-3">Entity restructuring and modeling</div>
+          <div class="bg-background-light/60 rounded-lg p-3 sm:col-span-2">Multi-year strategy coordination</div>
+        </div>
+
+        ${isHighComplexity ? `
+          <p class="text-xs text-secondary-grey italic">
+            With high complexity, this is often the best ROI on advisory spend.
+          </p>
+        ` : ''}
+      </div>
+    </div>
+  `;
+
+  const legalCard = `
+    <div class="bg-white p-7 rounded-2xl card-shadow border-2 border-accent-gold">
+      <div class="flex flex-col gap-5">
+        <div class="flex items-start justify-between gap-4">
+          <div class="space-y-2 min-w-0">
+            <p class="text-sm font-semibold uppercase tracking-wide text-secondary-grey">Premium advisory</p>
+
+            <h3 class="text-xl md:text-2xl font-extrabold text-primary-dark leading-snug break-normal">
+              <span class="whitespace-nowrap">Legal and Financial</span><br/>
+              <span class="whitespace-nowrap">Team Coordination</span>
+            </h3>
+
+            <p class="text-secondary-grey max-w-prose">
+              When multiple advisors are involved, we’ll coordinate with your attorney, financial advisor, and lender so everyone is aligned.
+            </p>
+          </div>
+
+          <div class="shrink-0 text-right">
+            <button onclick="toggleLegalTeamCoordination()"
+              class="bg-accent-gold text-white font-bold py-3 px-5 rounded-lg hover:bg-opacity-90 transition"
+            >
+              <i class="fa-solid ${legalSelected ? 'fa-circle-check' : 'fa-circle-plus'} mr-2"></i>
+              ${legalSelected ? 'Added' : 'Add'}
+            </button>
+
+            <p class="text-xs text-secondary-grey mt-2 font-semibold">$1,200 flat</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+          <div class="bg-background-light/60 rounded-lg p-3">Coordinate deliverables and timelines</div>
+          <div class="bg-background-light/60 rounded-lg p-3">Review tax and legal implications</div>
+          <div class="bg-background-light/60 rounded-lg p-3 sm:col-span-2">Reduce back-and-forth and errors</div>
+        </div>
+
+        ${isHighComplexity ? `
+          <p class="text-xs text-secondary-grey italic">
+            With high complexity, coordinated execution often prevents expensive missteps.
+          </p>
+        ` : ''}
+      </div>
+    </div>
+  `;
+
+  return `
+    <div class="mt-10">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        ${advancedCard}
+        ${legalCard}
+      </div>
+    </div>
+  `;
+}
 
     // --- RESULTS PAGE RENDER ---
     function renderResults(container) {
@@ -1289,7 +1354,7 @@
       const situationHtml = getSituationHtml(state.answers, isIndividual);
       const helpWithHtml = getHelpWithHtml(isIndividual);
 
-      const hasUpgrades = selectedAddOnsCount > 0 || state.advancedPlanningSelected;
+      const hasUpgrades = selectedAddOnsCount > 0 || state.advancedPlanningSelected || state.legalTeamCoordinationSelected;
 
       const finalCtaLink = '#schedule-call';
       const finalCtaText = isIndividual && !hasUpgrades && !isReviewRequired
@@ -1300,10 +1365,10 @@
         ? 'No obligation. Your payment starts secure onboarding.'
         : '15 minutes, confirm scope and pricing.';
 
-      const packageOptionsHtml = getPricingTiersHtml(isIndividual, results);
+      const packageOptionsHtml = isIndividual ? '' : getPricingTiersHtml(isIndividual, results);
       const recommendedAddOnsHtml = renderRecommendedAddOns(results, state.answers, state.path);
+      const premiumAddOnsHtml = renderPremiumAddOnsRow(results);
       const allAddOnsDropdownHtml = renderAllAddOnsDropdown();
-      const advancedPlanningHtml = renderAdvancedTaxPlanning(results);
 
       container.innerHTML = `
         <div class="max-w-4xl mx-auto">
@@ -1368,8 +1433,8 @@
           <!-- ADD-ONS + PREMIUM -->
           <section class="mt-16 space-y-8">
             ${recommendedAddOnsHtml}
+            ${premiumAddOnsHtml}
             ${allAddOnsDropdownHtml}
-            ${advancedPlanningHtml}
           </section>
 
           <!-- SECTION 5: FINAL CTA (secondary, quieter) -->
@@ -1428,6 +1493,9 @@
 
       if (state.advancedPlanningSelected) {
         summary += `\nAdvanced Tax Planning: Selected for Discussion\n`;
+      }
+      if (state.legalTeamCoordinationSelected) {
+        summary += `\nCoordination with Legal and Financial Team: Selected for Discussion\n`;
       }
 
       summary += `\nBreakdown:\n`;
