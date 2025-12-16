@@ -182,6 +182,34 @@
         Compliance: 1250,
         Bundle: 3500,
       },
+      // Business Prep-only annual pricing (Option A)
+      // Total Prep-only is Personal portion (computed with individual scale where possible) + Business portion.
+      BUSINESS_PREP_BUSINESS_BASE: 1800,
+      BUSINESS_PREP_EFFORT_ADDERS: {
+        bookkeeping: {
+          'up to date': 0,
+          '1-3 months behind': 300,
+          '4-12': 800,
+          '12+': 1500,
+        },
+        cleanup: {
+          'none': 0,
+          '1 year': 500,
+          '2+ years': 1200,
+          'missing business returns': 'NEEDS_REVIEW',
+        },
+        notices: {
+          'none': 0,
+          'minor': 200,
+          'serious': 'NEEDS_REVIEW',
+        },
+        transactions: {
+          'none': 0,
+          'financing': 300,
+          'acquisition/sale/major expansion': 'NEEDS_REVIEW',
+        },
+      },
+
       BUSINESS_COMPLEXITY_POINTS: {
         entities: { '0': 0, '1': 5, '2': 15, '3+': 20 },
         rentals_re: { '0': 0, '1-2': 5, '3-5': 15, '6+': 20 },
@@ -652,6 +680,14 @@
       return parseInt(numStr) || 0;
     }
 
+    // --- Individual price rounding (Hybrid) ---
+    // Up to $1,600: round up to nearest $100
+    // Above $1,600: round up to nearest $250
+    function roundIndividualPrice(price) {
+      const p = Number(price) || 0;
+      return p <= 1600 ? Math.ceil(p / 100) * 100 : Math.ceil(p / 250) * 250;
+    }
+
     function calculateResults() {
       state.results = {
         complexityScore: 0,
@@ -743,12 +779,37 @@
         }
 
         state.results.estimatedPrice = price;
-        state.results.recommendedTier = 'Tax Prep Estimate';
 
-        if (price > 3000 || state.results.needsReview) {
+        // Build the three tier prices for Individuals from the calculated prep price
+        const prepPrice = roundIndividualPrice(price);
+        const compliancePrice = roundIndividualPrice(prepPrice * 1.35);
+        const bundlePrice = roundIndividualPrice(prepPrice * 1.75);
+
+        state.results.tierPrices.Prep = prepPrice;
+        state.results.tierPrices.Compliance = compliancePrice;
+        state.results.tierPrices.Bundle = bundlePrice;
+
+        state.results.estimatedPrice = prepPrice;
+
+        if (state.results.needsReview) {
+          state.results.recommendedTier = 'Needs Review';
+        } else if (prepPrice > 1600) {
+          state.results.recommendedTier = 'Bundle';
+        } else if (prepPrice > 900) {
+          state.results.recommendedTier = 'Compliance';
+        } else {
+          state.results.recommendedTier = 'Prep';
+        }
+
+        // Default selection on results page
+        if (!state.selectedTier || state.selectedTier === 'Tax Prep Estimate') {
+          state.selectedTier = (state.results.recommendedTier === 'Needs Review') ? 'Prep' : state.results.recommendedTier;
+        }
+
+        if (prepPrice > 3000 || state.results.needsReview) {
           state.results.complexityLevel = 'High';
           state.results.complexityScore = 90;
-        } else if (price > 1500) {
+        } else if (prepPrice > 1500) {
           state.results.complexityLevel = 'Medium';
           state.results.complexityScore = 55;
         } else {
@@ -757,8 +818,7 @@
         }
 
         state.results.reviewRecommended = reviewRecommended;
-      } else {
-        let totalScore = 0;
+      } else {let totalScore = 0;
         let reviewRecommended = false;
         const complexityMap = PRICING_RULES_CONFIG.BUSINESS_COMPLEXITY_POINTS;
         const businessAnswers = answers;
@@ -816,6 +876,59 @@
         if (numRentals > 3) addersTotal += (numRentals - 3) * PRICING_RULES_CONFIG.BUSINESS_INCREMENTAL_ADDERS.rental_beyond_3;
 
         tiers.forEach(tier => {
+          // Prep is a flat annual fee (Personal portion + Business portion + effort adders)
+          if (tier === 'Prep') {
+            // Personal portion (use Individual scale with what we collect on the Business track)
+            let personalRaw = PRICING_RULES_CONFIG.INDIVIDUAL_BASE_PRICE;
+
+            const rentalsKey = businessAnswers.rentals_re || '0';
+            const rentalsAdd = PRICING_RULES_CONFIG.INDIVIDUAL_RENTALS[rentalsKey];
+            if (rentalsAdd === 'NEEDS_REVIEW') {
+              state.results.needsReview = true;
+              reviewRecommended = true;
+            } else if (typeof rentalsAdd === 'number') {
+              personalRaw += rentalsAdd;
+            }
+
+            const statesKey = businessAnswers.states_re || '1';
+            const statesAdd = PRICING_RULES_CONFIG.INDIVIDUAL_STATES[statesKey];
+            if (statesAdd === 'NEEDS_REVIEW') {
+              state.results.needsReview = true;
+              reviewRecommended = true;
+            } else if (typeof statesAdd === 'number') {
+              personalRaw += statesAdd;
+            }
+
+            const personalPortion = roundIndividualPrice(personalRaw);
+
+            // Business portion base
+            const businessBase = PRICING_RULES_CONFIG.BUSINESS_PREP_BUSINESS_BASE || 1800;
+
+            // Effort adders (payroll explicitly excluded)
+            const effort = PRICING_RULES_CONFIG.BUSINESS_PREP_EFFORT_ADDERS || {};
+            const bkAdd = (effort.bookkeeping && effort.bookkeeping[businessAnswers.bookkeeping]) ?? 0;
+            const cleanupAdd = (effort.cleanup && effort.cleanup[businessAnswers.cleanup]) ?? 0;
+            const noticeAdd = (effort.notices && effort.notices[businessAnswers.notices]) ?? 0;
+            const txnAdd = (effort.transactions && effort.transactions[businessAnswers.transactions]) ?? 0;
+
+            // Hard triggers
+            if (cleanupAdd === 'NEEDS_REVIEW' || noticeAdd === 'NEEDS_REVIEW' || txnAdd === 'NEEDS_REVIEW') {
+              state.results.needsReview = true;
+              reviewRecommended = true;
+            }
+
+            const numericBkAdd = (bkAdd === 'NEEDS_REVIEW') ? 0 : (Number(bkAdd) || 0);
+            const numericCleanupAdd = (cleanupAdd === 'NEEDS_REVIEW') ? 0 : (Number(cleanupAdd) || 0);
+            const numericNoticeAdd = (noticeAdd === 'NEEDS_REVIEW') ? 0 : (Number(noticeAdd) || 0);
+            const numericTxnAdd = (txnAdd === 'NEEDS_REVIEW') ? 0 : (Number(txnAdd) || 0);
+
+            const businessPortion = businessBase + addersTotal + numericBkAdd + numericCleanupAdd + numericNoticeAdd + numericTxnAdd;
+
+            state.results.tierPrices[tier] = roundIndividualPrice(personalPortion + businessPortion);
+            return;
+          }
+
+          // Compliance remains monthly (existing logic)
           const min = PRICING_RULES_CONFIG.BUSINESS_MIN_PRICES[tier];
           const max = PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES[tier];
 
@@ -824,8 +937,7 @@
 
           state.results.tierPrices[tier] = Math.round(finalPrice / 50) * 50;
         });
-
-        const compliancePrice = state.results.tierPrices.Compliance;
+const compliancePrice = state.results.tierPrices.Compliance;
 
         let bundleMultiplier = 1.45;
         let planningFloor = 200;
@@ -881,14 +993,17 @@
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
 
-    function formatPriceDisplay(price, maxPrice, needsReview, isIndividual) {
-      const formattedPrice = price.toLocaleString();
+    function formatPriceDisplay(price, maxPrice, needsReview, isIndividual, tierName) {
+      const formattedPrice = (Number(price) || 0).toLocaleString();
+
+      // Prep is always shown as a flat fee (no /mo), and we never show review microcopy on the Prep card.
+      const isPrep = tierName === 'Prep';
 
       if (isIndividual) {
         if (needsReview) {
           return {
-            price: `Starts at $${formattedPrice}`,
-            microcopy: "Personalized quote required after a quick scope review.",
+            price: isPrep ? `$${formattedPrice}` : `$${formattedPrice}`,
+            microcopy: "",
             tierDisplay: "Custom Quote Required",
             ctaText: 'Book a quick scope call'
           };
@@ -901,22 +1016,33 @@
         };
       }
 
+      // Business track formatting
+      if (isPrep) {
+        return {
+          price: `$${formattedPrice}`,
+          microcopy: "",
+          tierDisplay: "Annual Fee",
+          ctaText: 'Pay and Get Started'
+        };
+      }
+
       const maxCap = maxPrice || PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES.Bundle;
-      const isCapped = price > maxCap;
+      const isCapped = (Number(price) || 0) > maxCap;
 
       if (needsReview || isCapped) {
-        const displayPrice = maxCap.toLocaleString();
+        const displayPrice = (Number(maxCap) || 0).toLocaleString();
         return {
-          price: `Starts at $${displayPrice}/mo`,
-          microcopy: "Personalized quote needed after a quick scope call.",
+          price: `$${displayPrice}/mo`,
+          microcopy: "",
           tierDisplay: "Custom Quote Required",
           ctaText: 'Book a quick scope call'
         };
       }
 
       return {
-        price: `Estimated $${formattedPrice}/mo`,
-        tierDisplay: "Estimated",
+        price: `$${formattedPrice}/mo`,
+        microcopy: "",
+        tierDisplay: "Monthly Subscription",
         ctaText: 'Discuss Scope'
       };
     }
@@ -1019,8 +1145,7 @@
     }
 
     function getPricingTiersHtml(isIndividual, results) {
-      if (isIndividual) return '';
-
+      
       const tiers = [
         {
           name: 'Prep',
@@ -1063,9 +1188,8 @@
 
         const price = results.tierPrices[tier.name];
         const max = PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES[tier.name];
-        const requiresReviewDisplay = results.needsReview || (price > max);
-        const formatted = formatPriceDisplay(price, max, requiresReviewDisplay, false);
-
+        const requiresReviewDisplay = (tier.name === 'Prep') ? false : (results.needsReview || (price > max));
+        const formatted = formatPriceDisplay(price, max, requiresReviewDisplay, false, tier.name);
         const borderClasses = isSelected
           ? 'border-accent-gold border-2 ring-4 ring-accent-gold/20'
           : (isRecommended
@@ -1105,9 +1229,9 @@
             <p class="text-secondary-grey text-sm mb-4 h-10">${tier.description}</p>
 
             <p class="text-3xl font-extrabold text-primary-dark mb-1">${formatted.price}</p>
-            <p class="text-sm text-secondary-grey mb-3">${requiresReviewDisplay ? 'Estimate shown, scope call required' : ''}</p>
 
-            ${requiresReviewDisplay ? `<p class="text-xs text-red-600 mt-3">${formatted.microcopy}</p>` : ''}
+            
+            ${tier.name !== 'Prep' ? `<p class="text-xs secondary-grey mt-4">A scoping call will determine final pricing.</p>` : ''}
           </div>
         `;
       }).join('');
@@ -1442,7 +1566,7 @@
         : (state.selectedTier || results.recommendedTier || 'Bundle');
 
       if (isIndividual) {
-        heroFormatted = formatPriceDisplay(results.estimatedPrice, null, isReviewRequired, true);
+        heroFormatted = formatPriceDisplay(results.estimatedPrice, null, isReviewRequired, true, selectedTier);
       } else {
         const tierPrice = results.tierPrices[selectedTier] || results.tierPrices.Bundle;
         const tierMax = PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES[selectedTier] || bundleMax;
@@ -1452,7 +1576,8 @@
           tierPrice,
           tierMax,
           isReviewRequired || isOverMax,
-          false
+          false,
+          selectedTier
         );
       }
 
@@ -1487,35 +1612,12 @@
         ? 'No obligation. Your payment starts secure onboarding.'
         : '15 minutes, confirm scope and pricing.';
 
-      const packageOptionsHtml = isIndividual ? '' : getPricingTiersHtml(isIndividual, results);
+      const packageOptionsHtml = getPricingTiersHtml(isIndividual, results);
       const recommendedAddOnsHtml = renderRecommendedAddOns(results, state.answers, state.path);
       const premiumAddOnsHtml = renderPremiumAddOnsRow(results);
       const allAddOnsDropdownHtml = renderAllAddOnsDropdown();
 
-      const individualEstimateCard = isIndividual ? `
-        <div class="grid grid-cols-1 gap-6 mb-10">
-          <div class="bg-white p-7 rounded-xl card-shadow border border-gray-200">
-            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
-              <div class="space-y-2">
-                <h3 class="text-xl font-bold text-primary-dark">Your estimate</h3>
-                <p class="text-sm text-secondary-grey font-semibold">${heroTimeDisplay}</p>
-
-                <p class="text-3xl font-extrabold text-primary-dark leading-none">${heroTierDisplay}</p>
-                <p class="text-4xl font-extrabold text-accent-gold">${heroPriceDisplay}</p>
-
-                <p class="text-sm text-primary-dark mt-2">${recommendationSentence}</p>
-              </div>
-
-              <div class="shrink-0">
-                <a href="${finalCtaLink}" class="block bg-accent-gold text-white font-bold py-3 px-6 rounded-lg hover:bg-opacity-90 transition-all text-center">
-                  ${finalCtaText}
-                </a>
-                <p class="text-sm text-secondary-grey mt-3">${finalMicrocopy}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      ` : '';
+      const individualEstimateCard = '';
 
       container.innerHTML = `
         <div class="max-w-4xl mx-auto">
@@ -1528,11 +1630,9 @@
 
           ${renderValueSection(isIndividual)}
 
-          ${isIndividual ? individualEstimateCard : `
-            <div class="mb-10">
+          <div class="mb-10">
               ${packageOptionsHtml}
             </div>
-          `}
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
             <div class="bg-white p-6 rounded-xl card-shadow">
