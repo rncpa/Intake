@@ -237,9 +237,9 @@
         transactions: { 'none': 0, 'IRA move': 2, 'acquisition/sale/major expansion': 5 },
       },
       BUSINESS_INCREMENTAL_ADDERS: {
-        entity_beyond_1: 150,
-        state_beyond_2: 100,
-        rental_beyond_3: 75,
+        entity_beyond_1: 100,
+        state_beyond_2: 50,
+        rental_beyond_3: 50,
       },
       BUSINESS_HARD_TRIGGERS: {
         entities_min: 3,
