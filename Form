@@ -227,15 +227,16 @@
 
 
       BUSINESS_COMPLEXITY_POINTS: {
-        entities: { '0': 0, '1': 5, '2': 15, '3+': 20 },
-        rentals_re: { '0': 0, '1-2': 5, '3-5': 15, '6+': 20 },
-        states_re: { '1': 0, '2': 4, '3': 8, '4+': 10 },
-        payroll: { 'none': 0, '1-5 employees': 5, '6+': 10 },
-        bookkeeping: { 'up to date': 0, '1-3 months behind': 10, '4-12': 15, '12+': 20 },
-        cleanup: { 'none': 0, '1 year': 5, '2+ years': 10, 'missing business returns': 20 },
-        notices: { 'none': 0, 'small': 2, 'serious': 5 },
-        transactions: { 'none': 0, 'IRA move': 2, 'acquisition/sale/major expansion': 5 },
-      },
+  entities: { '0': 0, '1': 3, '2': 10, '3+': 15 },
+  rentals_re: { '0': 0, '1-2': 2, '3-5': 8, '6+': 12 },
+  states_re: { '1': 0, '2': 2, '3': 4, '4+': 6 },
+  payroll: { 'none': 0, '1-5 employees': 2, '6+': 4 },
+  bookkeeping: { 'up to date': 0, '1-3 months behind': 8, '4-12': 12, '12+': 16 },
+  cleanup: { 'none': 0, '1 year': 4, '2+ years': 8, 'missing business returns': 16 },
+  notices: { 'none': 0, 'small': 2, 'serious': 5 },
+  transactions: { 'none': 0, 'IRA move': 1, 'acquisition/sale/major expansion': 4 },
+},
+
       BUSINESS_INCREMENTAL_ADDERS: {
         entity_beyond_1: 100,
         state_beyond_2: 50,
