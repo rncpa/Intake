@@ -210,6 +210,22 @@
         },
       },
 
+      // Business Prep-only return scaling (effort-based, not subscription complexity)
+      // Business portion is capped for online checkout. If exceeded, we require a scope call.
+      BUSINESS_PREP_BUSINESS_MAX: 5500,
+
+      // Small coordination discount when we prepare both the entity return and the owner return together.
+      BUSINESS_PREP_COORDINATION_DISCOUNT: 150,
+
+      // Prep-only business-return adders based on the business track answers (entities/rentals/states).
+      // These are separate from the subscription adders used for Compliance/Strategy.
+      BUSINESS_PREP_RETURN_ADDERS: {
+        entities: { '1': 0, '2': 900, '3+': 2000 },
+        rentals_re: { '0': 0, '1-2': 400, '3-5': 900, '6+': 'NEEDS_REVIEW' },
+        states_re: { '1': 0, '2': 200, '3': 400, '4+': 'NEEDS_REVIEW' },
+      },
+
+
       BUSINESS_COMPLEXITY_POINTS: {
         entities: { '0': 0, '1': 5, '2': 15, '3+': 20 },
         rentals_re: { '0': 0, '1-2': 5, '3-5': 15, '6+': 20 },
@@ -904,6 +920,26 @@
             // Business portion base
             const businessBase = PRICING_RULES_CONFIG.BUSINESS_PREP_BUSINESS_BASE || 1800;
 
+            // Return-level adders for Prep-only (entities/rentals/states), separate from subscription pricing
+            const prepReturnAdders = PRICING_RULES_CONFIG.BUSINESS_PREP_RETURN_ADDERS || {};
+            const entityKey = businessAnswers.entities || '1';
+            const entAdd = (prepReturnAdders.entities && prepReturnAdders.entities[entityKey]) ?? 0;
+
+            const rentalsReKey = businessAnswers.rentals_re || '0';
+            const rentAdd = (prepReturnAdders.rentals_re && prepReturnAdders.rentals_re[rentalsReKey]) ?? 0;
+
+            const statesReKey = businessAnswers.states_re || '1';
+            const stAdd = (prepReturnAdders.states_re && prepReturnAdders.states_re[statesReKey]) ?? 0;
+
+            if (entAdd === 'NEEDS_REVIEW' || rentAdd === 'NEEDS_REVIEW' || stAdd === 'NEEDS_REVIEW') {
+              state.results.needsReview = true;
+              reviewRecommended = true;
+            }
+
+            const numericEntAdd = (entAdd === 'NEEDS_REVIEW') ? 0 : (Number(entAdd) || 0);
+            const numericRentAdd = (rentAdd === 'NEEDS_REVIEW') ? 0 : (Number(rentAdd) || 0);
+            const numericStateAdd = (stAdd === 'NEEDS_REVIEW') ? 0 : (Number(stAdd) || 0);
+
             // Effort adders (payroll explicitly excluded)
             const effort = PRICING_RULES_CONFIG.BUSINESS_PREP_EFFORT_ADDERS || {};
             const bkAdd = (effort.bookkeeping && effort.bookkeeping[businessAnswers.bookkeeping]) ?? 0;
@@ -922,9 +958,25 @@
             const numericNoticeAdd = (noticeAdd === 'NEEDS_REVIEW') ? 0 : (Number(noticeAdd) || 0);
             const numericTxnAdd = (txnAdd === 'NEEDS_REVIEW') ? 0 : (Number(txnAdd) || 0);
 
-            const businessPortion = businessBase + addersTotal + numericBkAdd + numericCleanupAdd + numericNoticeAdd + numericTxnAdd;
+            const businessPortion = businessBase
+              + numericEntAdd
+              + numericRentAdd
+              + numericStateAdd
+              + numericBkAdd
+              + numericCleanupAdd
+              + numericNoticeAdd
+              + numericTxnAdd;
 
-            state.results.tierPrices[tier] = roundIndividualPrice(personalPortion + businessPortion);
+            const businessMax = PRICING_RULES_CONFIG.BUSINESS_PREP_BUSINESS_MAX || 5500;
+            if (businessPortion > businessMax) {
+              state.results.needsReview = true;
+              reviewRecommended = true;
+            }
+
+            const coordDiscount = PRICING_RULES_CONFIG.BUSINESS_PREP_COORDINATION_DISCOUNT || 0;
+            const totalPrep = Math.max(0, (personalPortion + businessPortion) - coordDiscount);
+
+            state.results.tierPrices[tier] = roundIndividualPrice(totalPrep);
             return;
           }
 
@@ -1018,6 +1070,14 @@ const compliancePrice = state.results.tierPrices.Compliance;
 
       // Business track formatting
       if (isPrep) {
+        if (needsReview) {
+          return {
+            price: "Custom Quote",
+            microcopy: "",
+            tierDisplay: "Custom Quote Required",
+            ctaText: 'Book a quick scope call'
+          };
+        }
         return {
           price: `$${formattedPrice}`,
           microcopy: "",
@@ -1026,7 +1086,7 @@ const compliancePrice = state.results.tierPrices.Compliance;
         };
       }
 
-      const maxCap = maxPrice || PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES.Bundle;
+const maxCap = maxPrice || PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES.Bundle;
       const isCapped = (Number(price) || 0) > maxCap;
 
       if (needsReview || isCapped) {
