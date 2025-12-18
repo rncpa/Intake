@@ -865,6 +865,16 @@ if (questionId === 'business_setup' && state.path === 'Individual') {
 
         state.results.estimatedPrice = price;
 
+
+// Solo S-corp owners staying in the Individual flow:
+// add the entity return base to Prep-only pricing
+if (state.path === 'Individual' && state.answers.business_setup === 'solo_s_corp') {
+  price += PRICING_RULES_CONFIG.BUSINESS_PREP_BUSINESS_BASE; // +1800
+
+  // Optional coordination discount (remove this line if you want a clean $2,500 floor)
+  price -= (PRICING_RULES_CONFIG.BUSINESS_PREP_COORDINATION_DISCOUNT || 0);
+}
+
         // Build the three tier prices for Individuals from the calculated prep price
         const prepPrice = roundIndividualPrice(price);
         const compliancePrice = roundIndividualPrice(prepPrice * 1.35);
@@ -987,6 +997,7 @@ if (questionId === 'business_setup' && state.path === 'Individual') {
             }
 
             const personalPortion = roundIndividualPrice(personalRaw);
+
 
             // Business portion base
             const businessBase = PRICING_RULES_CONFIG.BUSINESS_PREP_BUSINESS_BASE || 1800;
