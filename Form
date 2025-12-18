@@ -1163,6 +1163,8 @@ const compliancePrice = state.results.tierPrices.Compliance;
 
       // Prep is always shown as a flat fee (no /mo), and we never show review microcopy on the Prep card.
       const isPrep = tierName === 'Prep';
+      const unit = isPrep ? '/yr' : '/mo';
+
 
       if (isIndividual) {
         if (needsReview) {
@@ -1174,10 +1176,10 @@ const compliancePrice = state.results.tierPrices.Compliance;
           };
         }
         return {
-          price: `$${formattedPrice}`,
+          price: `$${formattedPrice}${unit}`,
           microcopy: "One-Time Price",
           tierDisplay: "Individual Tax Filing",
-          ctaText: `Pay $${formattedPrice} and Get Started`
+          ctaText: "Let's Get Started"
         };
       }
 
@@ -1192,10 +1194,10 @@ const compliancePrice = state.results.tierPrices.Compliance;
           };
         }
         return {
-          price: `$${formattedPrice}`,
+          price: `$${formattedPrice}${unit}`,
           microcopy: "",
           tierDisplay: "Annual Fee",
-          ctaText: 'Pay and Get Started'
+          ctaText: "Let's Get Started"
         };
       }
 
@@ -1373,9 +1375,10 @@ const maxCap = maxPrice || PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES.Bundle;
 
         return `
           <div
-            onclick="selectTier('${tier.name}')"
-            class="bg-white p-6 rounded-xl card-shadow text-left ${borderClasses} relative cursor-pointer hover:shadow-md transition"
-          >
+  onclick="selectTier('${tier.name}')"
+  class="bg-white p-6 rounded-xl card-shadow text-left ${borderClasses} relative cursor-pointer hover:shadow-md transition h-full min-h-[240px] sm:min-h-[280px] lg:min-h-[320px] flex flex-col"
+>
+
             ${isRecommended ? '<span class="absolute top-0 right-0 mt-[-10px] mr-[-10px] bg-accent-gold text-white text-xs font-semibold px-3 py-1 rounded-full uppercase shadow-md">Recommended</span>' : ''}
             ${isSelected ? '<span class="absolute top-0 left-0 mt-[-10px] ml-[-10px] bg-primary-dark text-white text-xs font-semibold px-3 py-1 rounded-full uppercase shadow-md">Selected</span>' : ''}
 
@@ -1401,13 +1404,20 @@ const maxCap = maxPrice || PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES.Bundle;
               </span>
             </div>
 
-            <p class="text-secondary-grey text-sm mb-4 h-10">${tier.description}</p>
+            <p class="text-secondary-grey text-sm mb-4">${tier.description}</p>
 
-            <p class="text-3xl font-extrabold text-primary-dark mb-1">${formatted.price}</p>
+<div class="mt-auto pt-4">
+  <p class="text-3xl font-extrabold text-primary-dark mb-1">${formatted.price}</p>
 
-            
-            ${tier.name !== 'Prep' ? `<p class="text-xs secondary-grey mt-4">A scoping call will determine final pricing.</p>` : ''}
-          </div>
+  <p class="text-xs text-secondary-grey mt-3">
+    ${
+      tier.name === 'Prep'
+        ? 'Lock in your spot with Rom Neidhardt, CPA'
+        : 'A scoping call will determine final pricing.'
+    }
+  </p>
+</div>
+</div>
         `;
       }).join('');
 
@@ -1431,9 +1441,10 @@ const maxCap = maxPrice || PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES.Bundle;
           </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          ${tierHtml}
-        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+  ${tierHtml}
+</div>
+
       `;
     }
 
