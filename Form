@@ -181,12 +181,12 @@
 INDIVIDUAL_MIN_PRICES: {
   Prep: 700,          // annual (you already compute this)
   Compliance: 400,    // monthly floor for individuals
-  Bundle: 900,        // monthly floor for individuals
+  Bundle: 700,        // monthly floor for individuals
 },
 
 INDIVIDUAL_SOLO_S_CORP_MIN_PRICES: {
-  Compliance: 450,    // monthly floor for solo S-corp (slightly higher than pure individual)
-  Bundle: 1000,       // monthly floor for solo S-corp
+  Compliance: 400,    // monthly floor for solo S-corp (slightly higher than pure individual)
+  Bundle: 800,       // monthly floor for solo S-corp
 },
 
 
