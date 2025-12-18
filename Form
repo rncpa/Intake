@@ -177,6 +177,9 @@
         Compliance: 650,
         Bundle: 1500, // internal key stays Bundle, display label is "Strategy Bundle"
       },
+// Solo S-Corp compliance floor override (used when business_setup = 'solo_s_corp')
+BUSINESS_SOLO_S_CORP_COMPLIANCE_MIN: 450,
+
       BUSINESS_MAX_PRICES: {
         Prep: 900,
         Compliance: 1250,
@@ -299,7 +302,32 @@
         }
       ],
       Individual: [
-        {
+{
+  id: 'business_setup',
+  label: "Do you own any business entity?",
+  subtext: "This helps us estimate the right level of year-round support.",
+  type: 'single-select-card',
+  options: [
+    {
+      value: 'no_entity',
+      label: "I don't have a business entity",
+      description: "No S-corp, partnership, or LLC return needed"
+    },
+    {
+      value: 'solo_s_corp',
+      label: "I'm a solo professional using an S-corp",
+      description: "One owner, no operating team. Mainly to receive income and run payroll"
+    },
+    {
+      value: 'operating_business',
+      label: "I run an operating business",
+      description: "Employees, operations, or multiple income sources beyond just my services"
+    },
+  ]
+},
+       
+
+ {
           id: 'schedule_d_heavy',
           label: "Do you have significant investment activity?",
           subtext: "Heavy stock trading, complex basis, or high-volume 8949 reporting.",
@@ -379,7 +407,27 @@
         },
       ],
       BusinessRE: [
-        {
+{
+  id: 'business_setup',
+  label: "How would you describe your business setup?",
+  subtext: "This helps us estimate the right level of year-round support.",
+  type: 'single-select-card',
+  options: [
+    {
+      value: 'solo_s_corp',
+      label: "I'm a solo professional using an S-corp",
+      description: "One owner, no operating team. Mainly to receive income and run payroll"
+    },
+    {
+      value: 'operating_business',
+      label: "I run an operating business",
+      description: "Employees, operations, or multiple income sources beyond just my services"
+    },
+  ]
+},
+       
+
+ {
           id: 'entities',
           label: "How many business entities (S-Corp, LLC, Partnership) do you own?",
           type: 'single-select-card',
@@ -652,6 +700,26 @@
       } else {
         state.answers[questionId] = value;
       }
+// If someone picked "Individual" initially but indicates they have a solo S-corp or operating business,
+// route them into the Business question set so pricing and results match their situation.
+// Auto-route only if they explicitly say they run an operating business.
+// Solo S-corp owners stay in the Individual flow (they're "Individual + modifier").
+if (questionId === 'business_setup' && state.path === 'Individual') {
+  if (value === 'operating_business') {
+    state.path = 'Business';
+    state.answers.path = 'Business';
+
+    // If your Business flow starts with business_setup too, skip it
+    // because they've already answered it.
+    state.currentQuestionIndex = 1;
+
+    // If your handleAnswer continues with "advance question" logic,
+    // this prevents it from double-advancing.
+    render();
+    return;
+  }
+}
+
 
       const container = document.getElementById('options-container');
       if (container) {
@@ -892,7 +960,9 @@
         if (numStates > 2) addersTotal += (numStates - 2) * PRICING_RULES_CONFIG.BUSINESS_INCREMENTAL_ADDERS.state_beyond_2;
         if (numRentals > 3) addersTotal += (numRentals - 3) * PRICING_RULES_CONFIG.BUSINESS_INCREMENTAL_ADDERS.rental_beyond_3;
 
-        tiers.forEach(tier => {
+     
+
+ tiers.forEach(tier => {
           // Prep is a flat annual fee (Personal portion + Business portion + effort adders)
           if (tier === 'Prep') {
             // Personal portion (use Individual scale with what we collect on the Business track)
@@ -982,8 +1052,13 @@
           }
 
           // Compliance remains monthly (existing logic)
-          const min = PRICING_RULES_CONFIG.BUSINESS_MIN_PRICES[tier];
+const businessProfile = businessAnswers.business_setup || 'operating_business';  
+          let min = PRICING_RULES_CONFIG.BUSINESS_MIN_PRICES[tier];
           const max = PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES[tier];
+  // Solo S-corp owners get a lower Compliance floor
+  if (tier === 'Compliance' && businessProfile === 'solo_s_corp') {
+    min = PRICING_RULES_CONFIG.BUSINESS_SOLO_S_CORP_COMPLIANCE_MIN;
+  }
 
           const priceBand = min + (max - min) * (score / 100);
           const finalPrice = priceBand + addersTotal;
