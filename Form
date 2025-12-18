@@ -1334,23 +1334,25 @@ const maxCap = maxPrice || PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES.Bundle;
         {
           name: 'Compliance',
           displayName: 'Compliance',
-          description: 'Annual returns, quarterly estimates, and responsive support.',
+          description: 'Year-round tax support designed to keep you on track, avoid surprises, and adjust as your numbers change',
           priceKey: 'Compliance',
           includes: [
             'Everything in Prep',
-            'Quarterly estimate guidance',
-            'Notices triage support',
+            'Quarterly estimated tax calculations',
+            'Review of your P&L and balance sheet each quarter',
+            'Monitoring income and profit trends over the year',
           ],
         },
         {
           name: 'Bundle',
           displayName: 'Strategy Bundle',
-          description: 'Sound filing and proactive tax minimization.',
+          description: 'For clients who want help thinking ahead, not just reacting when tax time arrives.',
           priceKey: 'Bundle',
           includes: [
             'Everything in Compliance',
-            'Proactive planning touchpoints',
-            'Strategy calls for major decisions',
+            'Proactive tax planning throughout the year',
+            'Mid-year and year-end planning reviews',
+            'Guidance on timing, structure, and elections',
           ],
         }
       ];
