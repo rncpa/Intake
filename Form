@@ -686,8 +686,10 @@ function getActiveQuestionSet() {
   // RealEstate should start with the "Do you own any business entity?" question (same as Individual),
   // then continue with the BusinessRE set starting AFTER its own business_setup question.
   if (state.path === 'RealEstate') {
-    return [QUESTIONS.Individual[0], ...QUESTIONS.BusinessRE.slice(1)];
-  }
+  // Skip the entity yes/no screen, go straight to entity count + RE questions
+  return QUESTIONS.BusinessRE.slice(1);
+}
+
 
   // Pure Individual path
   if (state.path === 'Individual') {
@@ -1119,8 +1121,10 @@ if (isSoloSCorp) {
             const personalPortion = roundIndividualPrice(personalRaw);
 
 
-            // Business portion base
-            const businessBase = PRICING_RULES_CONFIG.BUSINESS_PREP_BUSINESS_BASE || 1800;
+           // Business portion base
+const isRealEstatePath = state.path === 'RealEstate';
+const businessBase = isRealEstatePath ? 0 : (PRICING_RULES_CONFIG.BUSINESS_PREP_BUSINESS_BASE || 1800);
+
 
             // Return-level adders for Prep-only (entities/rentals/states), separate from subscription pricing
             const prepReturnAdders = PRICING_RULES_CONFIG.BUSINESS_PREP_RETURN_ADDERS || {};
@@ -1139,7 +1143,9 @@ if (isSoloSCorp) {
             }
 
             const numericEntAdd = (entAdd === 'NEEDS_REVIEW') ? 0 : (Number(entAdd) || 0);
-            const numericRentAdd = (rentAdd === 'NEEDS_REVIEW') ? 0 : (Number(rentAdd) || 0);
+           let numericRentAdd = (rentAdd === 'NEEDS_REVIEW') ? 0 : (Number(rentAdd) || 0);
+if (isRealEstatePath) numericRentAdd = 0; // rentals already counted in personalPortion for RealEstate path
+
             const numericStateAdd = (stAdd === 'NEEDS_REVIEW') ? 0 : (Number(stAdd) || 0);
 
             // Effort adders (payroll explicitly excluded)
