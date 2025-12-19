@@ -136,7 +136,7 @@
     // --- PRICING RULES CONFIG (Editable Section) ---
     const PRICING_RULES_CONFIG = {
       // 5A) Individual Pricing
-      INDIVIDUAL_BASE_PRICE: 700,
+  INDIVIDUAL_BASE_PRICE: 700,
       INDIVIDUAL_ADDERS: {
         SCHEDULE_D_HEAVY: 400,
         SCHEDULE_C: 350,
@@ -147,28 +147,28 @@
         '0': 0,
         '1-2': 400,
         '3-5': 800,
-        '6+': 'NEEDS_REVIEW',
+        '6+': '1200',
       },
       INDIVIDUAL_K1S: {
         '0': 0,
         '1': 250,
         '2': 500,
-        '3+': 'NEEDS_REVIEW',
+        '3+': '750',
       },
       INDIVIDUAL_STATES: {
         '1': 0,
         '2': 200,
         '3': 400,
-        '4+': 'NEEDS_REVIEW',
+        '4+': '800',
       },
       INDIVIDUAL_UNFILED_RETURNS: {
         '0': 0,
         '1': 500,
         '2': 1000,
-        '3+': 'NEEDS_REVIEW',
+        '3+': '2000',
       },
       INDIVIDUAL_TRIGGERS: {
-        FOREIGN_REPORTING: 'NEEDS_REVIEW',
+        FOREIGN_REPORTING: '500',
       },
 
       // 5B) Business/RE Monthly Tier Pricing
