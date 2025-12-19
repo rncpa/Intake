@@ -269,10 +269,8 @@ BUSINESS_SOLO_S_CORP_COMPLIANCE_MIN: 450,
     // --- END PRICING RULES CONFIG ---
 
 // --- OUTBOUND LINKS (Editable) ---
-// Prep-only: send to Stripe Checkout (Stripe will redirect after payment).
-const STRIPE_PREP_CHECKOUT_URL = 'https://your-stripe-checkout-link';
-// Compliance / Strategy Bundle: send to Calendly scope call.
-const CALENDLY_SCOPE_URL = 'https://calendly.com/rom-comm/15-min-meeting';
+
+const CALENDLY_SCOPE_URL = 'https://calendly.com/rom-comm/scoping';
 
 
     // --- DISPLAY LABELS (User-facing names) ---
@@ -358,31 +356,22 @@ async function postIntakeSnapshot(eventType) {
 // - Prep: redirect to Stripe.
 // - Compliance/Strategy: redirect to Calendly.
 async function handleFinalCtaClick() {
-    postIntakeSnapshot('cta_click');
+  // Best-effort intake snapshot before navigation
+  postIntakeSnapshot('cta_click');
 
+  // Single destination: Calendly scoping call
+  const sid = encodeURIComponent(state.sessionId);
+const glue = CALENDLY_SCOPE_URL.includes('?') ? '&' : '?';
 
-  // If a custom quote / review is required, always route to Calendly.
-  const needsReview = !!(state.results && state.results.needsReview);
+window.location.href =
+  `${CALENDLY_SCOPE_URL}${glue}` +
+  `utm_source=lighthouse_assessment` +
+  `&utm_medium=cta` +
+  `&utm_campaign=intake` +
+  `&utm_content=${sid}`;
 
-  // Determine tier selection.
-  // Individuals may not always set selectedTier; default to 'Prep' unless user explicitly selected otherwise.
-  const tier = state.selectedTier || (state.path === 'Individual' ? 'Prep' : (state.results && state.results.recommendedTier) || 'Bundle');
-
-  if (needsReview || (tier !== 'Prep' && tier !== 'Compliance' && tier !== 'Bundle')) {
-    window.location.href = CALENDLY_SCOPE_URL;
-    return;
-  }
-
-  if (tier === 'Prep') {
-    const glue = STRIPE_PREP_CHECKOUT_URL.includes('?') ? '&' : '?';
-    const sid = encodeURIComponent(state.sessionId);
-    window.location.href = `${STRIPE_PREP_CHECKOUT_URL}${glue}instanceId=${sid}`;
-    return;
-  }
-
-  // Compliance or Strategy Bundle
-  window.location.href = CALENDLY_SCOPE_URL;
 }
+
 
 
     // --- QUESTION DEFINITIONS ---
@@ -1265,7 +1254,7 @@ const compliancePrice = state.results.tierPrices.Compliance;
           price: `$${formattedPrice}${unit}`,
           microcopy: "One-Time Price",
           tierDisplay: "Individual Tax Filing",
-          ctaText: "Let's Get Started"
+          ctaText: "Schedule a Scoping Call"
         };
       }
 
@@ -1283,7 +1272,7 @@ const compliancePrice = state.results.tierPrices.Compliance;
           price: `$${formattedPrice}${unit}`,
           microcopy: "",
           tierDisplay: "Annual Fee",
-          ctaText: "Let's Get Started"
+          ctaText: "Schedule a Scoping Call"
         };
       }
 
@@ -1881,8 +1870,8 @@ const maxCap = maxPrice || PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES.Bundle;
         : `Book a quick scope call`;
 
       const finalMicrocopy = isIndividual && !hasUpgrades && !isReviewRequired
-        ? 'No obligation. Your payment starts secure onboarding.'
-        : '15 minutes, confirm scope and pricing.';
+        ? '20 minutes, confirm scope and pricing.'
+        : '20 minutes, confirm scope and pricing.';
 
       const packageOptionsHtml = getPricingTiersHtml(isIndividual, results);
       const recommendedAddOnsHtml = renderRecommendedAddOns(results, state.answers, state.path);
@@ -1940,7 +1929,8 @@ const maxCap = maxPrice || PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES.Bundle;
 <button
   type="button"
   onclick="handleFinalCtaClick()"
-  class="bg-white border border-gray-300 text-primary-dark font-bold py-3 px-8 rounded-lg text-lg hover:border-accent-gold transition-all card-shadow inline-block mb-3"
+  class="bg-primary-dark text-white font-extrabold py-4 px-10 rounded-xl text-lg sm:text-xl hover:bg-primary-dark/90 transition-all card-shadow inline-flex items-center justify-center gap-2 w-full sm:w-auto mb-3"
+
 >
   ${finalCtaText}
   <i class="fa-solid fa-chevron-right ml-2"></i>
