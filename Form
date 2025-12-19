@@ -682,9 +682,26 @@ window.location.href =
         renderQuestion(container);
       }
     }
+function getActiveQuestionSet() {
+  // RealEstate should start with the "Do you own any business entity?" question (same as Individual),
+  // then continue with the BusinessRE set starting AFTER its own business_setup question.
+  if (state.path === 'RealEstate') {
+    return [QUESTIONS.Individual[0], ...QUESTIONS.BusinessRE.slice(1)];
+  }
+
+  // Pure Individual path
+  if (state.path === 'Individual') {
+    return QUESTIONS.Individual;
+  }
+
+  // Business / Business+RealEstate
+  return QUESTIONS.BusinessRE;
+}
 
     function renderQuestion(container) {
-      const questionSet = state.path === 'Individual' ? QUESTIONS.Individual : QUESTIONS.BusinessRE;
+     const questionSet = getActiveQuestionSet();
+
+
       const qIndex = state.currentQuestionIndex;
 
       if (qIndex >= questionSet.length) {
@@ -812,9 +829,9 @@ if (questionId === 'business_setup' && state.path === 'Individual') {
 
       const container = document.getElementById('options-container');
       if (container) {
-        const q = state.path === 'Individual'
-          ? QUESTIONS.Individual[state.currentQuestionIndex]
-          : QUESTIONS.BusinessRE[state.currentQuestionIndex];
+        const activeSet = getActiveQuestionSet();
+const q = activeSet[state.currentQuestionIndex];
+
         container.innerHTML = q.options.map(option => createOptionHTML(q.id, option, isMultiSelect)).join('');
       }
 
@@ -831,7 +848,9 @@ if (questionId === 'business_setup' && state.path === 'Individual') {
 
     function navigateQuestion(direction) {
       if (direction > 0) {
-        const questionSet = state.path === 'Individual' ? QUESTIONS.Individual : QUESTIONS.BusinessRE;
+       const questionSet = getActiveQuestionSet();
+
+
         const questionId = questionSet[state.currentQuestionIndex].id;
         const answer = state.answers[questionId];
         const isAnswered = Array.isArray(answer) ? answer.length > 0 : !!answer;
