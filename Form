@@ -986,25 +986,31 @@ if (state.path === 'Individual' && state.answers.business_setup === 'solo_s_corp
 }
 
         // Build the three tier prices for Individuals from the calculated prep price
-        const prepPrice = roundIndividualPrice(price);
-
-let compliancePrice;
-let bundlePrice;
+const prepPrice = roundIndividualPrice(price);
 
 const isSoloSCorp = (state.path === 'Individual' && state.answers.business_setup === 'solo_s_corp');
 
-if (isSoloSCorp) {
-  compliancePrice = PRICING_RULES_CONFIG.INDIVIDUAL_SOLO_S_CORP_MIN_PRICES.Compliance;
-  bundlePrice = PRICING_RULES_CONFIG.INDIVIDUAL_SOLO_S_CORP_MIN_PRICES.Bundle;
-} else {
-  compliancePrice = PRICING_RULES_CONFIG.INDIVIDUAL_MIN_PRICES.Compliance;
-  bundlePrice = PRICING_RULES_CONFIG.INDIVIDUAL_MIN_PRICES.Bundle;
-}
+// Floors (you already have these in config)
+const complianceFloor = isSoloSCorp
+  ? PRICING_RULES_CONFIG.INDIVIDUAL_SOLO_S_CORP_MIN_PRICES.Compliance
+  : PRICING_RULES_CONFIG.INDIVIDUAL_MIN_PRICES.Compliance;
+
+const bundleFloor = isSoloSCorp
+  ? PRICING_RULES_CONFIG.INDIVIDUAL_SOLO_S_CORP_MIN_PRICES.Bundle
+  : PRICING_RULES_CONFIG.INDIVIDUAL_MIN_PRICES.Bundle;
+
+// Prep is /yr, Compliance/Bundle are /mo, so convert first
+const complianceFromPrepMonthly = Math.round((((prepPrice / 12) * 1.35) / 50)) * 50;
+const bundleFromPrepMonthly = Math.round((((prepPrice / 12) * 1.75) / 50)) * 50;
+
+const compliancePrice = Math.max(complianceFloor, complianceFromPrepMonthly);
+const bundlePrice = Math.max(bundleFloor, bundleFromPrepMonthly);
 
 
-        state.results.tierPrices.Prep = prepPrice;
-        state.results.tierPrices.Compliance = compliancePrice;
-        state.results.tierPrices.Bundle = bundlePrice;
+state.results.tierPrices.Prep = prepPrice;
+state.results.tierPrices.Compliance = compliancePrice;
+state.results.tierPrices.Bundle = bundlePrice;
+
 
         state.results.estimatedPrice = prepPrice;
 
@@ -1190,17 +1196,19 @@ if (isRealEstatePath) numericRentAdd = 0; // rentals already counted in personal
 
           // Compliance remains monthly (existing logic)
 const businessProfile = businessAnswers.business_setup || 'operating_business';  
-          let min = PRICING_RULES_CONFIG.BUSINESS_MIN_PRICES[tier];
-          const max = PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES[tier];
+          const tierKey = (typeof tier === 'string') ? tier : (tier.name || tier.key || tier.id);
+
+let min = PRICING_RULES_CONFIG.BUSINESS_MIN_PRICES[tierKey];
+const max = PRICING_RULES_CONFIG.BUSINESS_MAX_PRICES[tierKey];
+
   // Solo S-corp owners get a lower Compliance floor
-  if (tier === 'Compliance' && businessProfile === 'solo_s_corp') {
+  if (tierKey === 'Compliance' && businessProfile === 'solo_s_corp') {
     min = PRICING_RULES_CONFIG.BUSINESS_SOLO_S_CORP_COMPLIANCE_MIN;
   }
-
-          const priceBand = min + (max - min) * (score / 100);
+         const priceBand = min + (max - min) * (score / 100);
           const finalPrice = priceBand + addersTotal;
 
-          state.results.tierPrices[tier] = Math.round(finalPrice / 50) * 50;
+          state.results.tierPrices[tierKey] = Math.round(finalPrice / 50) * 50;
         });
 const compliancePrice = state.results.tierPrices.Compliance;
 
