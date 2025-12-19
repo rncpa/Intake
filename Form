@@ -326,19 +326,31 @@ async function postIntakeSnapshot(eventType) {
     userAgent: navigator.userAgent,
   };
 
+   const url = '/wp-json/rom/v1/intake';
+  const body = JSON.stringify(payload);
+
+  // Best option for "send then redirect" flows
+  if (navigator.sendBeacon) {
+    const blob = new Blob([body], { type: 'application/json' });
+    const ok = navigator.sendBeacon(url, blob);
+    if (!ok) console.warn('sendBeacon failed to queue');
+    return;
+  }
+
+  // Fallback: keepalive fetch so it can complete during navigation
   try {
-    const res = await fetch('/wp-json/rom/v1/intake', {
+    fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      console.warn('Intake POST failed:', res.status, await res.text());
-    }
+      body,
+      keepalive: true,
+    }).then(async (res) => {
+      if (!res.ok) console.warn('Intake POST failed:', res.status, await res.text());
+    }).catch((err) => console.warn('Intake POST error:', err));
   } catch (err) {
     console.warn('Intake POST error:', err);
   }
+
 }
 
 // Bottom CTA behavior:
@@ -346,7 +358,8 @@ async function postIntakeSnapshot(eventType) {
 // - Prep: redirect to Stripe.
 // - Compliance/Strategy: redirect to Calendly.
 async function handleFinalCtaClick() {
-  await postIntakeSnapshot('cta_click');
+    postIntakeSnapshot('cta_click');
+
 
   // If a custom quote / review is required, always route to Calendly.
   const needsReview = !!(state.results && state.results.needsReview);
