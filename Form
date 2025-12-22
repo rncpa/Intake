@@ -188,6 +188,28 @@ INDIVIDUAL_SOLO_S_CORP_MIN_PRICES: {
   Compliance: 450,    // monthly floor for solo S-corp (slightly higher than pure individual)
   Bundle: 800,       // monthly floor for solo S-corp
 },
+/* --- Individual scaling knobs (operational complexity drives Compliance; Bundle also bumps) --- */
+INDIVIDUAL_COMPLIANCE_CAPS: {
+  standard: 650,      // cap for individual Compliance (keeps Compliance from bleeding into Strategy expectations)
+  solo_s_corp: 750,   // keep below Strategy floor ($800) to preserve tier separation
+},
+
+// Floor bumps for Compliance (operational complexity only)
+INDIVIDUAL_COMPLIANCE_FLOOR_BUMPS: {
+  rentals: { '0': 0, '1-2': 100, '3-5': 200, '6+': 250 },
+  k1s:     { '0': 0, '1': 50,  '2': 100, '3+': 150 },
+  states:  { '1': 0, '2': 50,  '3': 100, '4+': 150 },
+  schedule_c: 100,
+},
+
+// Floor bumps for Bundle (Strategy Bundle). Still complexity-sensitive, but doesn't replace Advanced Planning.
+// Note: Bundle has no cap here by default; it can scale, while Advanced Planning remains a separate $7.5k+ project.
+INDIVIDUAL_BUNDLE_FLOOR_BUMPS: {
+  rentals: { '0': 0, '1-2': 100, '3-5': 200, '6+': 300 },
+  k1s:     { '0': 0, '1': 50,  '2': 100, '3+': 150 },
+  states:  { '1': 0, '2': 50,  '3': 100, '4+': 150 },
+  schedule_c: 150,
+},
 
 
 
@@ -1003,8 +1025,39 @@ const bundleFloor = isSoloSCorp
 const complianceFromPrepMonthly = Math.round((((prepPrice / 12) * 1.35) / 50)) * 50;
 const bundleFromPrepMonthly = Math.round((((prepPrice / 12) * 1.75) / 50)) * 50;
 
-const compliancePrice = Math.max(complianceFloor, complianceFromPrepMonthly);
-const bundlePrice = Math.max(bundleFloor, bundleFromPrepMonthly);
+/* --- Compliance scaling (operational complexity only) --- */
+const rentalsKey = state.answers.rentals || '0';
+const k1sKey = state.answers.k1s || '0';
+const statesKey = state.answers.states || '1';
+const hasScheduleC = (state.answers.schedule_c === 'Yes');
+
+let complianceFloorBump = 0;
+complianceFloorBump += (PRICING_RULES_CONFIG.INDIVIDUAL_COMPLIANCE_FLOOR_BUMPS?.rentals?.[rentalsKey] || 0);
+complianceFloorBump += (PRICING_RULES_CONFIG.INDIVIDUAL_COMPLIANCE_FLOOR_BUMPS?.k1s?.[k1sKey] || 0);
+complianceFloorBump += (PRICING_RULES_CONFIG.INDIVIDUAL_COMPLIANCE_FLOOR_BUMPS?.states?.[statesKey] || 0);
+if (hasScheduleC) complianceFloorBump += (PRICING_RULES_CONFIG.INDIVIDUAL_COMPLIANCE_FLOOR_BUMPS?.schedule_c || 0);
+
+const complianceCap = isSoloSCorp
+  ? PRICING_RULES_CONFIG.INDIVIDUAL_COMPLIANCE_CAPS.solo_s_corp
+  : PRICING_RULES_CONFIG.INDIVIDUAL_COMPLIANCE_CAPS.standard;
+
+const complianceFloorScaled = complianceFloor + complianceFloorBump;
+const compliancePrice = Math.min(
+  Math.max(complianceFloorScaled, complianceFromPrepMonthly),
+  complianceCap
+);
+
+/* --- Bundle scaling (Strategy Bundle) --- */
+let bundleFloorBump = 0;
+bundleFloorBump += (PRICING_RULES_CONFIG.INDIVIDUAL_BUNDLE_FLOOR_BUMPS?.rentals?.[rentalsKey] || 0);
+bundleFloorBump += (PRICING_RULES_CONFIG.INDIVIDUAL_BUNDLE_FLOOR_BUMPS?.k1s?.[k1sKey] || 0);
+bundleFloorBump += (PRICING_RULES_CONFIG.INDIVIDUAL_BUNDLE_FLOOR_BUMPS?.states?.[statesKey] || 0);
+if (hasScheduleC) bundleFloorBump += (PRICING_RULES_CONFIG.INDIVIDUAL_BUNDLE_FLOOR_BUMPS?.schedule_c || 0);
+
+const bundleFloorScaled = bundleFloor + bundleFloorBump;
+const bundlePrice = Math.max(bundleFloorScaled, bundleFromPrepMonthly);
+
+
 
 
 state.results.tierPrices.Prep = prepPrice;
